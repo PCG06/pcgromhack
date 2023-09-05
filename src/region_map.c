@@ -113,7 +113,9 @@ static void CreateFlyDestIcons(void);
 static void TryCreateRedOutlineFlyDestIcons(void);
 static void SpriteCB_FlyDestIcon(struct Sprite *sprite);
 static void CB_FadeInFlyMap(void);
+static void CB_FadeInTownMap(void);
 static void CB_HandleFlyMapInput(void);
+static void CB_HandleTownMapInput(void);
 static void CB_ExitFlyMap(void);
 
 static const u16 sRegionMapCursorPal[] = INCBIN_U16("graphics/pokenav/region_map/cursor.gbapal");
@@ -1738,6 +1740,95 @@ void CB2_OpenFlyMap(void)
     }
 }
 
+void CB2_OpenTownMap(void)
+{
+    switch (gMain.state)
+    {
+    case 0:
+        SetVBlankCallback(NULL);
+        SetGpuReg(REG_OFFSET_DISPCNT, 0);
+        SetGpuReg(REG_OFFSET_BG0HOFS, 0);
+        SetGpuReg(REG_OFFSET_BG0VOFS, 0);
+        SetGpuReg(REG_OFFSET_BG1HOFS, 0);
+        SetGpuReg(REG_OFFSET_BG1VOFS, 0);
+        SetGpuReg(REG_OFFSET_BG2VOFS, 0);
+        SetGpuReg(REG_OFFSET_BG2HOFS, 0);
+        SetGpuReg(REG_OFFSET_BG3HOFS, 0);
+        SetGpuReg(REG_OFFSET_BG3VOFS, 0);
+        sFlyMap = Alloc(sizeof(*sFlyMap));
+        if (sFlyMap == NULL)
+        {
+            SetMainCallback2(CB2_ReturnToFieldWithOpenMenu);
+        }
+        else
+        {
+            ResetPaletteFade();
+            ResetSpriteData();
+            FreeSpriteTileRanges();
+            FreeAllSpritePalettes();
+            gMain.state++;
+        }
+        break;
+    case 1:
+        ResetBgsAndClearDma3BusyFlags(0);
+        InitBgsFromTemplates(1, sFlyMapBgTemplates, ARRAY_COUNT(sFlyMapBgTemplates));
+        gMain.state++;
+        break;
+    case 2:
+        InitWindows(sFlyMapWindowTemplates);
+        DeactivateAllTextPrinters();
+        gMain.state++;
+        break;
+    case 3:
+        LoadUserWindowBorderGfx(0, 0x65, BG_PLTT_ID(13));
+        ClearScheduledBgCopiesToVram();
+        gMain.state++;
+        break;
+    case 4:
+        InitRegionMap(&sFlyMap->regionMap, FALSE);
+        CreateRegionMapCursor(TAG_CURSOR, TAG_CURSOR);
+        CreateRegionMapPlayerIcon(TAG_PLAYER_ICON, TAG_PLAYER_ICON);
+        sFlyMap->mapSecId = sFlyMap->regionMap.mapSecId;
+        StringFill(sFlyMap->nameBuffer, CHAR_SPACE, MAP_NAME_LENGTH);
+        sDrawFlyDestTextWindow = TRUE;
+        DrawFlyDestTextWindow();
+        gMain.state++;
+        break;
+    case 5:
+        LZ77UnCompVram(sRegionMapFrameGfxLZ, (u16 *)BG_CHAR_ADDR(3));
+        gMain.state++;
+        break;
+    case 6:
+        LZ77UnCompVram(sRegionMapFrameTilemapLZ, (u16 *)BG_SCREEN_ADDR(30));
+        gMain.state++;
+        break;
+    case 7:
+        LoadPalette(sRegionMapFramePal, BG_PLTT_ID(1), sizeof(sRegionMapFramePal));
+        ScheduleBgCopyTilemapToVram(0);
+        gMain.state++;
+        break;
+    case 8:
+        LoadFlyDestIcons();
+        gMain.state++;
+        break;
+    case 9:
+        BlendPalettes(PALETTES_ALL, 16, 0);
+        SetVBlankCallback(VBlankCB_FlyMap);
+        gMain.state++;
+        break;
+    case 10:
+        SetGpuReg(REG_OFFSET_BLDCNT, 0);
+        SetGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_OBJ_1D_MAP | DISPCNT_OBJ_ON);
+        ShowBg(0);
+        ShowBg(1);
+        ShowBg(2);
+        SetFlyMapCallback(CB_FadeInTownMap);
+        SetMainCallback2(CB2_FlyMap);
+        gMain.state++;
+        break;
+    }
+}
+
 static void VBlankCB_FlyMap(void)
 {
     LoadOam();
@@ -1950,6 +2041,23 @@ static void CB_FadeInFlyMap(void)
     }
 }
 
+static void CB_FadeInTownMap(void)
+{
+    switch (sFlyMap->state)
+    {
+    case 0:
+        BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_BLACK);
+        sFlyMap->state++;
+        break;
+    case 1:
+        if (!UpdatePaletteFade())
+        {
+            SetFlyMapCallback(CB_HandleTownMapInput);
+        }
+        break;
+    }
+}
+
 static void CB_HandleFlyMapInput(void)
 {
     if (sFlyMap->state == 0)
@@ -1971,6 +2079,29 @@ static void CB_HandleFlyMapInput(void)
                 SetFlyMapCallback(CB_ExitFlyMap);
             }
             break;
+        case MAP_INPUT_B_BUTTON:
+            m4aSongNumStart(SE_SELECT);
+            sFlyMap->choseFlyLocation = FALSE;
+            SetFlyMapCallback(CB_ExitFlyMap);
+            break;
+        }
+    }
+}
+
+static void CB_HandleTownMapInput(void)
+{
+    if (sFlyMap->state == 0)
+    {
+        switch (DoRegionMapInputCallback())
+        {
+        case MAP_INPUT_NONE:
+        case MAP_INPUT_MOVE_START:
+        case MAP_INPUT_MOVE_CONT:
+            break;
+        case MAP_INPUT_MOVE_END:
+            DrawFlyDestTextWindow();
+            break;
+        case MAP_INPUT_A_BUTTON:
         case MAP_INPUT_B_BUTTON:
             m4aSongNumStart(SE_SELECT);
             sFlyMap->choseFlyLocation = FALSE;
