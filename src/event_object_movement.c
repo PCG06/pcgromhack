@@ -4769,7 +4769,7 @@ u8 GetSidewaysStairsCollision(struct ObjectEvent *objectEvent, u8 dir, u8 curren
     return collision;
 }
 
-static u8 GetVanillaCollision(struct ObjectEvent *objectEvent, s16 x, s16 y, u8 direction)
+static u8 GetVanillaCollision(struct ObjectEvent *objectEvent, s16 x, s16 y, u8 dir)
 {
     u8 direction = dir;
 
