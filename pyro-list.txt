@@ -9,29 +9,52 @@ https://github.com/DizzyEggg/pokeemerald/tree/repel
 https://github.com/ghoulslash/pokeemerald/tree/saveblock
 https://github.com/ghoulslash/pokeemerald/tree/dexnav
 https://github.com/aarant/pokeemerald/tree/followers
+https://github.com/Pawkkie/pokeemerald-expansion/tree/town-map
 
 // here from simple mod directory, in order //
-Ediating Default Options Settings                                           
-reusable tms                                                                
-Nature-affected stats colouring                                             
-Wrapping Summary Screen                                                     
-"Move Pokémon" as first PSS option                                          
-Move Item (in party)                                                        
-IV Checker NPC                                                             
-Change Object Event Movement Type in Real Time                              
+Editing Default Options Settings:
+	- Fast as defaul	                                           
+Reusable TMs:
+	- Because I want to be able to collect them                                                     
+Nature-affected stats colouring:
+	- So I don't have to look up natures by myself                                             
+Wrapping Summary Screen:
+	- Better feeling of scrolling jk
+"Move Pokémon" as first PSS option:
+	- Faster Pokemon switching                                          
+Move Item (in party)       
+	- Faster Item switching instead of using the bag as a middle man                                                 
+IV Checker NPC                                                          
+	- For battle-frontier   
+Change Object Event Movement Type in Real Time
+	- Scripting                              
 Pokemart Items by Badge Count                                               
-Snow Weather Fix                                                            
+Snow Weather Fix             
+	- Snow is unused in emerald and buggy, so with this fix I can use it for my hack                                               
 Let the Player only buy TMs and HMs once                                    
+	- Because of the second Modification
 Let a Pokémon forget any move they know
+	- So that people can use HMs without flying somewhere just to get that move removed
 contest movs tab removal
+	- Unused in my hack
 Fix Surf Dismount Ground Effects
+	- I have no Idea what this is tbh wololo
 Coin Pokemarts
+	- In the gaming center I want people to be able to buy something with the coins instead of trading them lol
 Lower case after first input in the naming screen.
+	- WAy better naming screen with that
 Give Custom Mon
+	- If I want to give a special pokemon, with custom moves and more
 Change bag sound with the ones from FR
+	- Idk why but apperantly it sounds better lmao
 Repeated Field Medicine Use
+	- So you can give medicin to other mons easier and faster
 Removing overworld pokenav calls
+	- Actually I want to remove the pokenav completly 
 Removing the trainer registered script
+	- Wtf is this even, I have no Idea why I put this in here
 Move camera to a coordinates and return camera to the player specials.
+	- Better cutscenes lol
 Rival Nickname
-// stop //
+	- Custon rival not someone like in emerald or ruby/sapphire
+// stop /
