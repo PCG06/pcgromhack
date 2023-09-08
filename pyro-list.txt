@@ -1,6 +1,6 @@
 https://github.com/CyanSMP64/pokeemerald/tree/dppt_hgss_music			done
 https://github.com/ghoulslash/pokeemerald/tree/sideways_stairs			done
-https://github.com/ghoulslash/pokeemerald/tree/stair_warps			donue
+https://github.com/ghoulslash/pokeemerald/tree/stair_warps			done
 https://github.com/ghoulslash/pokeemerald/tree/rock-climb
 https://github.com/TheXaman/pokeemerald/tree/tx_ui_party_screen_ds_style_1
 https://github.com/ghoulslash/pokeemerald/tree/auto-run

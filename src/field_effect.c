@@ -3991,7 +3991,7 @@ static void Task_UseRockClimb(u8 taskId)
 
 static bool8 RockClimb_Init(struct Task *task, struct ObjectEvent *objectEvent)
 {
-    ScriptContext2_Enable();
+    LockPlayerFieldControls();
     FreezeObjectEvents();
     gPlayerAvatar.preventStep = TRUE;
     SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_SURFING);
@@ -4128,7 +4128,7 @@ static bool8 RockClimb_ContinueRideOrEnd(struct Task *task, struct ObjectEvent *
         return TRUE;
     }
 
-    ScriptContext2_Enable();
+    LockPlayerFieldControls();
     gPlayerAvatar.flags &= ~PLAYER_AVATAR_FLAG_SURFING;
     gPlayerAvatar.flags |= PLAYER_AVATAR_FLAG_ON_FOOT;
     task->tState++;
@@ -4158,7 +4158,7 @@ static bool8 RockClimb_WaitStopRockClimb(struct Task *task, struct ObjectEvent *
         ObjectEventSetHeldMovement(objectEvent, GetFaceDirectionMovementAction(objectEvent->facingDirection));
         gPlayerAvatar.preventStep = FALSE;
         UnfreezeObjectEvents();
-        ScriptContext2_Disable();
+        UnlockPlayerFieldControls();
         DestroySprite(&gSprites[objectEvent->fieldEffectSpriteId]);
         FieldEffectActiveListRemove(FLDEFF_USE_ROCK_CLIMB);
         objectEvent->triggerGroundEffectsOnMove = TRUE; // e.g. if dismount on grass
