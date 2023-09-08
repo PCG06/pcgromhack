@@ -1,0 +1,37 @@
+https://github.com/CyanSMP64/pokeemerald/tree/dppt_hgss_music
+https://github.com/ghoulslash/pokeemerald/tree/sideways_stairs
+https://github.com/ghoulslash/pokeemerald/tree/stair_warps
+https://github.com/ghoulslash/pokeemerald/tree/rock-climb
+https://github.com/TheXaman/pokeemerald/tree/tx_ui_party_screen_ds_style_1
+https://github.com/ghoulslash/pokeemerald/tree/auto-run
+https://github.com/Iceman8911/pokeemerald-stuff/tree/Start-Menu-Icons
+https://github.com/DizzyEggg/pokeemerald/tree/repel
+https://github.com/ghoulslash/pokeemerald/tree/saveblock
+https://github.com/ghoulslash/pokeemerald/tree/dexnav
+https://github.com/aarant/pokeemerald/tree/followers
+
+// here from simple mod directory, in order //
+Ediating Default Options Settings                                           
+reusable tms                                                                
+Nature-affected stats colouring                                             
+Wrapping Summary Screen                                                     
+"Move Pokémon" as first PSS option                                          
+Move Item (in party)                                                        
+IV Checker NPC                                                             
+Change Object Event Movement Type in Real Time                              
+Pokemart Items by Badge Count                                               
+Snow Weather Fix                                                            
+Let the Player only buy TMs and HMs once                                    
+Let a Pokémon forget any move they know
+contest movs tab removal
+Fix Surf Dismount Ground Effects
+Coin Pokemarts
+Lower case after first input in the naming screen.
+Give Custom Mon
+Change bag sound with the ones from FR
+Repeated Field Medicine Use
+Removing overworld pokenav calls
+Removing the trainer registered script
+Move camera to a coordinates and return camera to the player specials.
+Rival Nickname
+// stop //
