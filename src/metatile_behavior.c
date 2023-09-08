@@ -1454,6 +1454,7 @@ bool8 MetatileBehavior_IsDirectionalDownRightStairWarp(u8 metatileBehavior)
 bool8 MetatileBehavior_IsSidewaysStairsLeftSideTop(u8 metatileBehavior)
 {
     if (metatileBehavior == MB_SIDEWAYS_STAIRS_LEFT_SIDE_TOP)
+        return TRUE;
     else
         return FALSE;
 }
