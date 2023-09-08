@@ -158,5 +158,11 @@ bool8 MetatileBehavior_IsSidewaysStairsRightSideBottom(u8 metatileBehavior);
 bool8 MetatileBehavior_IsSidewaysStairsLeftSideBottom(u8 metatileBehavior);
 bool8 MetatileBehavior_IsSidewaysStairsRightSideAny(u8 metatileBehavior);
 bool8 MetatileBehavior_IsSidewaysStairsLeftSideAny(u8 metatileBehavior);
+// stair_warps
+bool8 MetatileBehavior_IsDirectionalUpRightStairWarp(u8 metatileBehavior);
+bool8 MetatileBehavior_IsDirectionalUpLeftStairWarp(u8 metatileBehavior);
+bool8 MetatileBehavior_IsDirectionalDownRightStairWarp(u8 metatileBehavior);
+bool8 MetatileBehavior_IsDirectionalDownLeftStairWarp(u8 metatileBehavior);
+bool8 MetatileBehavior_IsDirectionalStairWarp(u8 metatileBehavior);
 
 #endif // GUARD_METATILE_BEHAVIOR_H
