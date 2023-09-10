@@ -1033,7 +1033,7 @@ struct SaveBlock1
     /*0x790*/ struct ItemSlot bagPocket_Berries[BAG_BERRIES_COUNT];
     /*0x848*/ struct Pokeblock pokeblocks[POKEBLOCKS_COUNT];
     #ifndef FREE_EXTRA_SEEN_FLAGS
-    /*0x988*/ u8 seen1[NUM_DEX_FLAG_BYTES];   //52 bytes
+    /*0x988*/ u8 dexCaught[NUM_DEX_FLAG_BYTES];   //52 bytes
     #endif
     /*0x9BC*/ u16 berryBlenderRecords[3];
     /*0x9C2*/ u8 unused_9C2[6];
@@ -1108,7 +1108,7 @@ struct SaveBlock1
     #endif
     /*0x3B14*/ struct RecordMixingGift recordMixingGift;
     #ifndef FREE_EXTRA_SEEN_FLAGS
-    /*0x3B24*/ u8 seen2[NUM_DEX_FLAG_BYTES];  //52 bytes
+    /*0x3B24*/ u8 dexSeen[NUM_DEX_FLAG_BYTES];  //52 bytes
     #endif
     /*0x3B58*/ LilycoveLady lilycoveLady;
     /*0x3B98*/ struct TrainerNameRecord trainerNameRecords[20];
