@@ -1097,14 +1097,13 @@ static bool8 EnableAutoRun(void)
     if (gSaveBlock2Ptr->autoRun)
     {
         gSaveBlock2Ptr->autoRun = FALSE;
-        ScriptContext1_SetupScript(EventScript_DisableAutoRun);
+        ScriptContext_SetupScript(EventScript_DisableAutoRun);
     }
     else
     {
         gSaveBlock2Ptr->autoRun = TRUE;
-        ScriptContext1_SetupScript(EventScript_EnableAutoRun);
+        ScriptContext_SetupScript(EventScript_EnableAutoRun);
     }
     
     return TRUE;
 }
-
