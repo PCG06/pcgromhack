@@ -223,6 +223,8 @@ void DrawDialogueFrame(u8 windowId, bool8 copyToVram)
         CopyWindowToVram(windowId, COPYWIN_FULL);
 }
 
+#include "start_menu.h"
+#include "window.h"
 void DrawStdWindowFrame(u8 windowId, bool8 copyToVram)
 {
     CallWindowFunction(windowId, WindowFunc_DrawStandardFrame);
@@ -250,6 +252,7 @@ void ClearStdWindowAndFrame(u8 windowId, bool8 copyToVram)
         CopyWindowToVram(windowId, COPYWIN_FULL);
 }
 
+#include "start_menu.h"
 static void WindowFunc_DrawStandardFrame(u8 bg, u8 tilemapLeft, u8 tilemapTop, u8 width, u8 height, u8 paletteNum)
 {
     int i;
@@ -493,7 +496,12 @@ u8 GetPlayerTextSpeedDelay(void)
 u8 AddStartMenuWindow(u8 numActions)
 {
     if (sStartMenuWindowId == WINDOW_NONE)
-        sStartMenuWindowId = AddWindowParameterized(0, 22, 1, 7, (numActions * 2) + 2, 15, 0x139);
+    {
+        if (gShouldStartMenuIconsBePrinted)
+            sStartMenuWindowId = AddWindowParameterized(0, 22 - ICON_WINDOW_OFFSET, 1, 7 + ICON_WINDOW_OFFSET, (numActions * 2) + 2, 15, 0x139);
+        else
+            sStartMenuWindowId = AddWindowParameterized(0, 22, 1, 7, (numActions * 2) + 2, 15, 0x139);
+    }
     return sStartMenuWindowId;
 }
 
@@ -950,8 +958,24 @@ void RedrawMenuCursor(u8 oldPos, u8 newPos)
 
     width = GetMenuCursorDimensionByFont(sMenu.fontId, 0);
     height = GetMenuCursorDimensionByFont(sMenu.fontId, 1);
-    FillWindowPixelRect(sMenu.windowId, PIXEL_FILL(1), sMenu.left, sMenu.optionHeight * oldPos + sMenu.top, width, height);
-    AddTextPrinterParameterized(sMenu.windowId, sMenu.fontId, gText_SelectorArrow3, sMenu.left, sMenu.optionHeight * newPos + sMenu.top, 0, 0);
+    // The first 2 conditionals have changes specially made for the expanded start menu
+    if (!IsAStartMenuIconAtPosition(newPos) && gShouldStartMenuIconsBePrinted)
+    {
+        FillWindowPixelRect(sMenu.windowId, PIXEL_FILL(1), sMenu.left, sMenu.optionHeight * oldPos, width, height + 4);
+        AddTextPrinterParameterized(sMenu.windowId, sMenu.fontId, gText_SelectorArrow3, sMenu.left, (sMenu.optionHeight * newPos) + (newPos * 3), 0, 0);
+    }
+    else if (IsAStartMenuIconAtPosition(newPos) && gShouldStartMenuIconsBePrinted)
+    {
+        FillWindowPixelRect(sMenu.windowId, PIXEL_FILL(1), sMenu.left, sMenu.optionHeight * oldPos, width, height + 4);
+        // Don't Print the cursor if there is already an option
+        AddTextPrinterParameterized(sMenu.windowId, sMenu.fontId, gText_Space, sMenu.left, sMenu.optionHeight * newPos + sMenu.top, 0, 0);
+    }
+    else
+    {
+        FillWindowPixelRect(sMenu.windowId, PIXEL_FILL(1), sMenu.left, sMenu.optionHeight * oldPos + sMenu.top, width, height);
+        //FillWindowPixelRect(sMenu.windowId, PIXEL_FILL(1), sMenu.left, sMenu.optionHeight * oldPos, width, height);
+        AddTextPrinterParameterized(sMenu.windowId, sMenu.fontId, gText_SelectorArrow3, sMenu.left, sMenu.optionHeight * newPos + sMenu.top, 0, 0);
+    }
 }
 
 u8 Menu_MoveCursor(s8 cursorDelta)
