@@ -1,15 +1,15 @@
 https://github.com/CyanSMP64/pokeemerald/tree/dppt_hgss_music			done
 https://github.com/ghoulslash/pokeemerald/tree/sideways_stairs			done
 https://github.com/ghoulslash/pokeemerald/tree/stair_warps			done
-https://github.com/ghoulslash/pokeemerald/tree/rock-climb
-https://github.com/TheXaman/pokeemerald/tree/tx_ui_party_screen_ds_style_1
+https://github.com/ghoulslash/pokeemerald/tree/rock-climb			(not tested)
+https://github.com/TheXaman/pokeemerald/tree/tx_ui_party_screen_ds_style_1	done
 https://github.com/ghoulslash/pokeemerald/tree/auto-run
 https://github.com/Iceman8911/pokeemerald-stuff/tree/Start-Menu-Icons
-https://github.com/DizzyEggg/pokeemerald/tree/repel
 https://github.com/ghoulslash/pokeemerald/tree/saveblock
 https://github.com/ghoulslash/pokeemerald/tree/dexnav
-https://github.com/aarant/pokeemerald/tree/followers
 https://github.com/Pawkkie/pokeemerald-expansion/tree/town-map
+https://github.com/aarant/pokeemerald/tree/followers
+
 
 // here from simple mod directory, in order //
 Editing Default Options Settings:

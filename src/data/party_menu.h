@@ -29,13 +29,6 @@ static const struct BgTemplate sPartyMenuBgTemplates[] =
     },
 };
 
-enum
-{
-    PARTY_BOX_LEFT_COLUMN,
-    PARTY_BOX_RIGHT_COLUMN,
-    PARTY_BOX_EQUAL_COLUMN //Custom party menu
-};
-
 static const struct PartyMenuBoxInfoRects sPartyBoxInfoRects[] =
 {
     [PARTY_BOX_LEFT_COLUMN] =
