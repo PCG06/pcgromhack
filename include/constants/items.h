@@ -1054,4 +1054,7 @@
 // Enigma Berry dummy constant
 #define EFFECT_ITEM_ENIGMA_BERRY_EREADER    1
 
+// TM Case bug fix
+#define END_OF_TMS ITEM_HM01_CUT
+
 #endif  // GUARD_CONSTANTS_ITEMS_H
