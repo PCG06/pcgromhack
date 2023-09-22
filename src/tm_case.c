@@ -808,7 +808,7 @@ static void Task_SelectTMAction_FromFieldBag(u8 taskId)
     Free(strbuf);
 
     //show HM icon
-    if (ItemId_GetImportance(gSpecialVar_ItemId))
+    if (ItemId_GetImportanceForTmCase(gSpecialVar_ItemId))
     {
         PlaceHMTileInWindow(2, 0, 2);
         CopyWindowToVram(2, 2);

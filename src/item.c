@@ -907,6 +907,11 @@ const u8 *ItemId_GetDescription(u16 itemId)
 
 u8 ItemId_GetImportance(u16 itemId)
 {
+   return gItems[SanitizeItemId(itemId)].importance;
+}
+
+u8 ItemId_GetImportanceForTmCase(u16 itemId)
+{
     // Fixed hm and number being printed. Was graphical bug
     if (itemId < END_OF_TMS) {
         return 0;
