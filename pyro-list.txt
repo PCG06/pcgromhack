@@ -1,10 +1,10 @@
-https://github.com/CyanSMP64/pokeemerald/tree/dppt_hgss_music			done
-https://github.com/ghoulslash/pokeemerald/tree/sideways_stairs			done
-https://github.com/ghoulslash/pokeemerald/tree/stair_warps			done
-https://github.com/ghoulslash/pokeemerald/tree/rock-climb			(not tested)
-https://github.com/TheXaman/pokeemerald/tree/tx_ui_party_screen_ds_style_1	done
-https://github.com/ghoulslash/pokeemerald/tree/auto-run				done
-https://github.com/Iceman8911/pokeemerald-stuff/tree/Start-Menu-Icons		done
+https://github.com/CyanSMP64/pokeemerald/tree/dppt_hgss_music							done
+https://github.com/ghoulslash/pokeemerald/tree/sideways_stairs							done
+https://github.com/ghoulslash/pokeemerald/tree/stair_warps								done
+https://github.com/ghoulslash/pokeemerald/tree/rock-climb								(not tested)
+https://github.com/TheXaman/pokeemerald/tree/tx_ui_party_screen_ds_style_1				done
+https://github.com/ghoulslash/pokeemerald/tree/auto-run									done
+https://github.com/Iceman8911/pokeemerald-stuff/tree/Start-Menu-Icons					done
 https://github.com/ghoulslash/pokeemerald/tree/saveblock
 https://github.com/Pawkkie/pokeemerald-expansion/tree/town-map
 https://github.com/TheXaman/pokeemerald/tree/tx_ui_TmCase
