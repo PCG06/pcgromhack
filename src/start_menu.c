@@ -1593,7 +1593,6 @@ void AppendToList(u8 *list, u8 *pos, u8 newEntry)
     (*pos)++;
 }
 
-
 //
 void LoadStartMenuIcon(u8 iconId, u8 position)
 {
@@ -1619,6 +1618,8 @@ void LoadStartMenuIcon(u8 iconId, u8 position)
     // This is what will set the particular frame needed
     if (sStartMenuCursorPos == position)                                // If the current option is selected
         iconFrames[0].frame.imageValue = iconId + COLOR_ICON_OFFSET;    // Load in the colored icon
+
+    // This is what will set the particular frame needed
     else
         iconFrames[0].frame.imageValue = iconId;                        // Load in the grayscale icon
 

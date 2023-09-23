@@ -8,6 +8,7 @@
 #include "palette.h"
 #include "region_map.h"
 #include "strings.h"
+#include "sound.h"
 #include "text.h"
 #include "text_window.h"
 #include "window.h"
@@ -137,6 +138,7 @@ static void MCB2_FieldUpdateRegionMap(void)
     DoScheduledBgTilemapCopiesToVram();
 }
 
+// THIS IS THE FUNCTION WHICH HANDLES THE MAP INPUT: IMPORTANT! Town map port
 static void FieldUpdateRegionMap(void)
 {
     u8 offset;
@@ -179,6 +181,7 @@ static void FieldUpdateRegionMap(void)
                     break;
                 case MAP_INPUT_A_BUTTON:
                 case MAP_INPUT_B_BUTTON:
+                    PlaySE(5);
                     sFieldRegionMapHandler->state++;
                     break;
             }

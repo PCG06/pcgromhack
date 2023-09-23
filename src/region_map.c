@@ -13,6 +13,8 @@
 #include "string_util.h"
 #include "international_string_util.h"
 #include "strings.h"
+#include "script.h"
+#include "sound.h"
 #include "text_window.h"
 #include "constants/songs.h"
 #include "m4a.h"
@@ -1740,12 +1742,13 @@ void CB2_OpenFlyMap(void)
     }
 }
 
+// Town Map port
 void CB2_OpenTownMap(void)
 {
     switch (gMain.state)
     {
     case 0:
-        SetVBlankCallback(NULL);
+        /*SetVBlankCallback(NULL);
         SetGpuReg(REG_OFFSET_DISPCNT, 0);
         SetGpuReg(REG_OFFSET_BG0HOFS, 0);
         SetGpuReg(REG_OFFSET_BG0VOFS, 0);
@@ -1767,63 +1770,12 @@ void CB2_OpenTownMap(void)
             FreeSpriteTileRanges();
             FreeAllSpritePalettes();
             gMain.state++;
-        }
-        break;
-    case 1:
-        ResetBgsAndClearDma3BusyFlags(0);
-        InitBgsFromTemplates(1, sFlyMapBgTemplates, ARRAY_COUNT(sFlyMapBgTemplates));
-        gMain.state++;
-        break;
-    case 2:
-        InitWindows(sFlyMapWindowTemplates);
-        DeactivateAllTextPrinters();
-        gMain.state++;
-        break;
-    case 3:
-        LoadUserWindowBorderGfx(0, 0x65, BG_PLTT_ID(13));
-        ClearScheduledBgCopiesToVram();
-        gMain.state++;
-        break;
-    case 4:
-        InitRegionMap(&sFlyMap->regionMap, FALSE);
-        CreateRegionMapCursor(TAG_CURSOR, TAG_CURSOR);
-        CreateRegionMapPlayerIcon(TAG_PLAYER_ICON, TAG_PLAYER_ICON);
-        sFlyMap->mapSecId = sFlyMap->regionMap.mapSecId;
-        StringFill(sFlyMap->nameBuffer, CHAR_SPACE, MAP_NAME_LENGTH);
-        sDrawFlyDestTextWindow = TRUE;
-        DrawFlyDestTextWindow();
-        gMain.state++;
-        break;
-    case 5:
-        LZ77UnCompVram(sRegionMapFrameGfxLZ, (u16 *)BG_CHAR_ADDR(3));
-        gMain.state++;
-        break;
-    case 6:
-        LZ77UnCompVram(sRegionMapFrameTilemapLZ, (u16 *)BG_SCREEN_ADDR(30));
-        gMain.state++;
-        break;
-    case 7:
-        LoadPalette(sRegionMapFramePal, BG_PLTT_ID(1), sizeof(sRegionMapFramePal));
-        ScheduleBgCopyTilemapToVram(0);
-        gMain.state++;
-        break;
-    case 8:
-        LoadFlyDestIcons();
-        gMain.state++;
-        break;
-    case 9:
-        BlendPalettes(PALETTES_ALL, 16, 0);
-        SetVBlankCallback(VBlankCB_FlyMap);
-        gMain.state++;
-        break;
-    case 10:
-        SetGpuReg(REG_OFFSET_BLDCNT, 0);
-        SetGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_OBJ_1D_MAP | DISPCNT_OBJ_ON);
-        ShowBg(0);
-        ShowBg(1);
-        ShowBg(2);
-        SetFlyMapCallback(CB_FadeInTownMap);
-        SetMainCallback2(CB2_FlyMap);
+        }*/
+        FieldShowRegionMap();
+        ResetPaletteFade();
+        ResetSpriteData();
+        FreeSpriteTileRanges();
+        FreeAllSpritePalettes();
         gMain.state++;
         break;
     }

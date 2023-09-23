@@ -3,7 +3,8 @@
 
 extern bool8 gBikeCyclingChallenge;
 extern u8 gBikeCollisions;
-
+// Town map port
+void FieldShowRegionMap(void);
 u8 GetLeadMonIndex(void);
 u8 IsDestinationBoxFull(void);
 u16 GetPCBoxToSendMon(void);

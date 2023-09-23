@@ -67,6 +67,7 @@ u8 ItemId_GetHoldEffect(u16 itemId);
 u8 ItemId_GetHoldEffectParam(u16 itemId);
 const u8 *ItemId_GetDescription(u16 itemId);
 u8 ItemId_GetImportance(u16 itemId);
+u8 ItemId_GetImportanceForTmCase(u16 itemId);
 u8 ItemId_GetPocket(u16 itemId);
 u8 ItemId_GetType(u16 itemId);
 ItemUseFunc ItemId_GetFieldFunc(u16 itemId);

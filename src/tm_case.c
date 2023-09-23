@@ -560,7 +560,7 @@ static void TMCase_ItemPrintFunc(u8 windowId, u32 itemId, u8 y)
 {
     if (itemId != -2)
     {
-        if (!ItemId_GetImportance(BagGetItemIdByPocketPosition(POCKET_TM_HM, itemId)))
+        if (!ItemId_GetImportanceForTmCase(BagGetItemIdByPocketPosition(POCKET_TM_HM, itemId)))
         {
             // ConvertIntToDecimalStringN(gStringVar1, BagGetQuantityByPocketPosition(POCKET_TM_HM, itemId), STR_CONV_MODE_RIGHT_ALIGN, 3);
             // StringExpandPlaceholders(gStringVar4, gText_xVar1);
@@ -928,7 +928,7 @@ static void Task_SelectTMAction_Type3(u8 taskId)
 {
     s16 * data = gTasks[taskId].data;
 
-    if (!ItemId_GetImportance(BagGetItemIdByPocketPosition(POCKET_TM_HM, data[1])))
+    if (!ItemId_GetImportanceForTmCase(BagGetItemIdByPocketPosition(POCKET_TM_HM, data[1])))
     {
         sTMCaseDynamicResources->savedCallback = CB2_ReturnToPokeStorage;
         Task_BeginFadeOutFromTMCase(taskId);
