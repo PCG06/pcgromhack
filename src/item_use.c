@@ -1358,7 +1358,7 @@ void ItemUseOutOfBattle_Honey(u8 taskId)
 
 void ItemUseOutOfBattle_TownMap(u8 taskId)
 {
-    SetMainCallback2(CB2_OpenTownMap);
+    gBagMenu->newScreenCallback = CB2_OpenTownMap;
     Task_FadeAndCloseBagMenu(taskId);
 }
 

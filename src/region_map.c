@@ -20,6 +20,7 @@
 #include "m4a.h"
 #include "field_effect.h"
 #include "field_specials.h"
+#include "field_weather.h"
 #include "fldeff.h"
 #include "region_map.h"
 #include "constants/region_map_sections.h"
@@ -1744,33 +1745,10 @@ void CB2_OpenFlyMap(void)
 
 // Town Map port
 void CB2_OpenTownMap(void)
-{
+{   
     switch (gMain.state)
     {
     case 0:
-        /*SetVBlankCallback(NULL);
-        SetGpuReg(REG_OFFSET_DISPCNT, 0);
-        SetGpuReg(REG_OFFSET_BG0HOFS, 0);
-        SetGpuReg(REG_OFFSET_BG0VOFS, 0);
-        SetGpuReg(REG_OFFSET_BG1HOFS, 0);
-        SetGpuReg(REG_OFFSET_BG1VOFS, 0);
-        SetGpuReg(REG_OFFSET_BG2VOFS, 0);
-        SetGpuReg(REG_OFFSET_BG2HOFS, 0);
-        SetGpuReg(REG_OFFSET_BG3HOFS, 0);
-        SetGpuReg(REG_OFFSET_BG3VOFS, 0);
-        sFlyMap = Alloc(sizeof(*sFlyMap));
-        if (sFlyMap == NULL)
-        {
-            SetMainCallback2(CB2_ReturnToFieldWithOpenMenu);
-        }
-        else
-        {
-            ResetPaletteFade();
-            ResetSpriteData();
-            FreeSpriteTileRanges();
-            FreeAllSpritePalettes();
-            gMain.state++;
-        }*/
         FieldShowRegionMap();
         ResetPaletteFade();
         ResetSpriteData();
