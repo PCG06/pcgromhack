@@ -2,6 +2,7 @@
 #include "bg.h"
 #include "gpu_regs.h"
 #include "international_string_util.h"
+#include "item_menu.h"
 #include "main.h"
 #include "malloc.h"
 #include "menu.h"
@@ -138,7 +139,6 @@ static void MCB2_FieldUpdateRegionMap(void)
     DoScheduledBgTilemapCopiesToVram();
 }
 
-// THIS IS THE FUNCTION WHICH HANDLES THE MAP INPUT: IMPORTANT! Town map port
 static void FieldUpdateRegionMap(void)
 {
     u8 offset;
@@ -181,7 +181,6 @@ static void FieldUpdateRegionMap(void)
                     break;
                 case MAP_INPUT_A_BUTTON:
                 case MAP_INPUT_B_BUTTON:
-                    PlaySE(5);
                     sFieldRegionMapHandler->state++;
                     break;
             }
@@ -195,6 +194,8 @@ static void FieldUpdateRegionMap(void)
             {
                 FreeRegionMapIconResources();
                 SetMainCallback2(sFieldRegionMapHandler->callback);
+                // By uncommenting this line, the callback will be that it always goes back to the bag not to the field. If you uncomment this line, make sure to comment out the line above.
+                //SetMainCallback2(CB2_BagMenuFromStartMenu);
                 TRY_FREE_AND_SET_NULL(sFieldRegionMapHandler);
                 FreeAllWindowBuffers();
             }
