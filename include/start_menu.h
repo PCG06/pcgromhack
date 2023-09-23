@@ -19,8 +19,6 @@ void SaveForBattleTowerLink(void);
 void HideStartMenu(void);
 void AppendToList(u8 *list, u8 *pos, u8 newEntry);
 
-
-
 // For Start Menu Icons
 extern bool8 gShouldStartMenuIconsBePrinted;        // TRUE when the start menu is open. FALSE when it's closed
 bool8 IsAStartMenuIconAtPosition(u8 position);     // Takes an index in the startmenu and checks if an icon has been drawn at that spot

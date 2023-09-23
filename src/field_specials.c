@@ -953,7 +953,7 @@ u8 GetLeadMonFriendshipScore(void)
     return GetMonFriendshipScore(&gPlayerParty[GetLeadMonIndex()]);
 }
 
-void CB2_FieldShowRegionMap(void)
+static void CB2_FieldShowRegionMap(void)
 {
     FieldInitRegionMap(CB2_ReturnToFieldContinueScriptPlayMapMusic);
 }
