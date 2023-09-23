@@ -6,6 +6,7 @@
 #include "main.h"
 #include "malloc.h"
 #include "menu.h"
+#include "overworld.h"
 #include "palette.h"
 #include "region_map.h"
 #include "strings.h"
@@ -193,7 +194,8 @@ static void FieldUpdateRegionMap(void)
             if (!gPaletteFade.active)
             {
                 FreeRegionMapIconResources();
-                SetMainCallback2(sFieldRegionMapHandler->callback);
+                SetMainCallback2(CB2_ReturnToField);
+                //SetMainCallback2(sFieldRegionMapHandler->callback);
                 // By uncommenting this line, the callback will be that it always goes back to the bag not to the field. If you uncomment this line, make sure to comment out the line above.
                 //SetMainCallback2(CB2_BagMenuFromStartMenu);
                 TRY_FREE_AND_SET_NULL(sFieldRegionMapHandler);
