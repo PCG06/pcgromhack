@@ -6,11 +6,10 @@ https://github.com/TheXaman/pokeemerald/tree/tx_ui_party_screen_ds_style_1				do
 https://github.com/ghoulslash/pokeemerald/tree/auto-run									done
 https://github.com/Iceman8911/pokeemerald-stuff/tree/Start-Menu-Icons					done
 https://github.com/ghoulslash/pokeemerald/tree/saveblock								done
-https://github.com/Pawkkie/pokeemerald-expansion/tree/town-map							done (buggy)
+https://github.com/Pawkkie/pokeemerald-expansion/tree/town-map							done
 https://github.com/TheXaman/pokeemerald/tree/tx_ui_TmCase								done	
 https://github.com/Pawkkie/pokeemerald-expansion/tree/start-menu-clock					done
 // add rotation to start menu icons
-// fix town map																			almost
 // test rock climb by giving field effect to hm		
 https://github.com/ghoulslash/pokeemerald/tree/dexnav
 https://github.com/aarant/pokeemerald/tree/followers

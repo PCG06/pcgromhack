@@ -1746,17 +1746,12 @@ void CB2_OpenFlyMap(void)
 // Town Map port
 void CB2_OpenTownMap(void)
 {   
-    switch (gMain.state)
-    {
-    case 0:
-        FieldShowRegionMap();
-        ResetPaletteFade();
-        ResetSpriteData();
-        FreeSpriteTileRanges();
-        FreeAllSpritePalettes();
-        gMain.state++;
-        break;
-    }
+    // Draw map
+    SetMainCallback2(CB2_FieldShowRegionMap);
+    ResetPaletteFade();
+    ResetSpriteData();
+    FreeSpriteTileRanges();
+    FreeAllSpritePalettes();
 }
 
 static void VBlankCB_FlyMap(void)

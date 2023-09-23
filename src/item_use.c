@@ -1358,8 +1358,20 @@ void ItemUseOutOfBattle_Honey(u8 taskId)
 
 void ItemUseOutOfBattle_TownMap(u8 taskId)
 {
-    gBagMenu->newScreenCallback = CB2_OpenTownMap;
-    Task_FadeAndCloseBagMenu(taskId);
+    if (MenuHelpers_IsLinkActive() == TRUE)
+    {
+        DisplayDadsAdviceCannotUseItemMessage(taskId, gTasks[taskId].tUsingRegisteredKeyItem);
+    }
+    else if (gTasks[taskId].tUsingRegisteredKeyItem != TRUE) 
+    {
+        gBagMenu->newScreenCallback = CB2_OpenTownMap;
+        Task_FadeAndCloseBagMenu(taskId);
+    } 
+    else if (gTasks[taskId].tUsingRegisteredKeyItem == TRUE) 
+    {
+        gBagMenu->newScreenCallback = CB2_OpenTownMap;
+        Task_FadeAndCloseBagMenu(taskId);
+    }
 }
 
 void ItemUseOutOfBattle_CannotUse(u8 taskId)
