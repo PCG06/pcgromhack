@@ -3446,25 +3446,24 @@ static const u8 sHM04Desc[] = _(
     "the foe.");
 
 static const u8 sHM05Desc[] = _(
-    "Looses a powerful\n"
-    "blast of light that\n"
-    "reduces accuracy.");
-
-static const u8 sHM06Desc[] = _(
     "A rock-crushingly\n"
     "tough attack that\n"
     "may lower Defense.");
 
-static const u8 sHM07Desc[] = _(
+static const u8 sHM06Desc[] = _(
     "Attacks the foe\n"
     "with enough power\n"
     "to climb waterfalls.");
 
-static const u8 sHM08Desc[] = _(
+static const u8 sHM07Desc[] = _(
     "Dives underwater\n"
     "the 1st turn, then\n"
     "attacks next turn.");
 
+static const u8 sHM08Desc[] = _(
+    "A charging attack\n"
+    "that may also leave\n"
+    "the foe confused.");
 // Charms
 static const u8 sOvalCharmDesc[] = _(
     "Raises the chance\n"

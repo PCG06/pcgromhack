@@ -10,7 +10,6 @@ https://github.com/Pawkkie/pokeemerald-expansion/tree/town-map							done
 https://github.com/TheXaman/pokeemerald/tree/tx_ui_TmCase								done	
 https://github.com/Pawkkie/pokeemerald-expansion/tree/start-menu-clock					done
 // add rotation to start menu icons
-// test rock climb by giving field effect to hm		
 https://github.com/ghoulslash/pokeemerald/tree/dexnav
 https://github.com/aarant/pokeemerald/tree/followers
 
