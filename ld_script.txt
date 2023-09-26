@@ -346,6 +346,7 @@ SECTIONS {
         src/expansion_intro.o(.text);
         src/sound_check_menu.o(.text);
         src/tm_case.o(.text);
+        src/map_preview.o(.text);
     } =0
 
     script_data :
@@ -715,6 +716,7 @@ SECTIONS {
         src/expansion_intro.o(.rodata);
         src/sound_check_menu.o(.rodata);
         src/tm_case.o(.rodata);
+        src/map_preview.o(.rodata);
     } =0
 
     song_data :

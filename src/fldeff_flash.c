@@ -6,6 +6,7 @@
 #include "fldeff.h"
 #include "gpu_regs.h"
 #include "main.h"
+#include "map_preview.h"
 #include "overworld.h"
 #include "palette.h"
 #include "party_menu.h"
@@ -36,7 +37,6 @@ static void Task_ExitCaveTransition4(u8 taskId);
 static void Task_ExitCaveTransition5(u8 taskId);
 static void DoEnterCaveTransition(void);
 static void Task_EnterCaveTransition1(u8 taskId);
-static void Task_EnterCaveTransition2(u8 taskId);
 static void Task_EnterCaveTransition3(u8 taskId);
 static void Task_EnterCaveTransition4(u8 taskId);
 
@@ -156,6 +156,12 @@ static bool8 TryDoMapTransition(void)
     u8 i;
     u8 fromType = GetLastUsedWarpMapType();
     u8 toType = GetCurrentMapType();
+
+    if (GetLastUsedWarpMapSectionId() != gMapHeader.regionMapSectionId && MapHasPreviewScreen(gMapHeader.regionMapSectionId, MPS_TYPE_CAVE) == TRUE)
+    {
+        RunMapPreviewScreen(gMapHeader.regionMapSectionId);
+        return TRUE;
+    }
 
     for (i = 0; sTransitionTypes[i].fromType; i++)
     {
@@ -298,7 +304,7 @@ static void Task_EnterCaveTransition1(u8 taskId)
     gTasks[taskId].func = Task_EnterCaveTransition2;
 }
 
-static void Task_EnterCaveTransition2(u8 taskId)
+void Task_EnterCaveTransition2(u8 taskId)
 {
     SetGpuReg(REG_OFFSET_DISPCNT, 0);
     LZ77UnCompVram(sCaveTransitionTiles, (void *)(VRAM + 0xC000));
