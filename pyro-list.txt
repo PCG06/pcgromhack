@@ -9,6 +9,11 @@ https://github.com/ghoulslash/pokeemerald/tree/saveblock								done
 https://github.com/Pawkkie/pokeemerald-expansion/tree/town-map							done
 https://github.com/TheXaman/pokeemerald/tree/tx_ui_TmCase								done	
 https://github.com/Pawkkie/pokeemerald-expansion/tree/start-menu-clock					done
+An no-whiteout branch better than pfs
+https://github.com/ghoulslash/pokeemerald/tree/map-previews 							done (to add that to a map, go to map_preview.c)			
+https://github.com/ghoulslash/pokeemerald/tree/signpost									done (give the sign MB_SIGNPOST)
+https://github.com/citrusbolt/pokeemerald/tree/summary_screen
+https://github.com/TheXaman/pokeemerald/tree/tx_registered_items_menu
 // add rotation to start menu icons
 https://github.com/ghoulslash/pokeemerald/tree/dexnav
 https://github.com/aarant/pokeemerald/tree/followers
@@ -61,3 +66,5 @@ Move camera to a coordinates and return camera to the player specials.
 Rival Nickname
 	- Custon rival not someone like in emerald or ruby/sapphire
 // stop /
+
+https://github.com/ghoulslash/pokeemerald/tree/ui_shell

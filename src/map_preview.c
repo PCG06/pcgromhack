@@ -513,7 +513,7 @@ void MapPreview_StartForestTransition(u8 mapsec)
     SetGpuRegBits(REG_OFFSET_WININ, WININ_WIN0_CLR | WININ_WIN1_CLR);
     SetGpuRegBits(REG_OFFSET_WINOUT, WINOUT_WIN01_CLR);
     gTasks[taskId].data[11] = MapPreview_CreateMapNameWindow(mapsec);
-    ScriptContext2_Enable();
+    LockPlayerFieldControls();
 }
 
 static u16 MapPreview_CreateMapNameWindow(u8 mapsec)
