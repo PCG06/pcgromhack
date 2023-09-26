@@ -152,3 +152,4 @@
 	.include "src/sound_check_menu.o"
 	.include "src/tm_case.o"
     .include "src/map_preview.o"
+	.include "src/tx_registered_items_menu.o"
