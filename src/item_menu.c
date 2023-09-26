@@ -396,7 +396,7 @@ static const struct ScrollArrowsTemplate sBagScrollArrowsTemplate = {
 };
 
 static const u8 sSelectButtonGfx[] = INCBIN_U8("graphics/interface/select_button.4bpp");
-static const u8 sLButtonGfx[] = INCBIN_U8("graphics/interface/L_button.4bpp");
+//static const u8 sLButtonGfx[] = INCBIN_U8("graphics/interface/L_button.4bpp");
 static const u8 sRButtonGfx[] = INCBIN_U8("graphics/interface/R_button.4bpp");
 static const u8 sRegisteredSelect_Gfx[] = INCBIN_U8("graphics/bag/select_button.4bpp"); //tx_registered_items_menu
 
@@ -1030,7 +1030,7 @@ static void BagMenu_ItemPrintCallback(u8 windowId, u32 itemIndex, u8 y)
             if (TxRegItemsMenu_CheckRegisteredHasItem(itemId))
             {
                 if (gSaveBlock2Ptr->optionsButtonMode != 2)
-                    BlitBitmapToWindow(windowId, sLButtonGfx, 96, y - 1, 24, 16);
+                    BlitBitmapToWindow(windowId, sRButtonGfx, 96, y - 1, 24, 16);
                 else
                     BlitBitmapToWindow(windowId, sRButtonGfx, 96, y - 1, 24, 16);
             }

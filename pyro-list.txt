@@ -13,7 +13,7 @@ An no-whiteout branch better than pfs
 https://github.com/ghoulslash/pokeemerald/tree/map-previews 							done (to add that to a map, go to map_preview.c)			
 https://github.com/ghoulslash/pokeemerald/tree/signpost									done (give the sign MB_SIGNPOST)
 https://github.com/citrusbolt/pokeemerald/tree/summary_screen							done
-https://github.com/TheXaman/pokeemerald/tree/tx_registered_items_menu
+https://github.com/TheXaman/pokeemerald/tree/tx_registered_items_menu					done
 // add rotation to start menu icons
 https://github.com/ghoulslash/pokeemerald/tree/dexnav
 https://github.com/aarant/pokeemerald/tree/followers
