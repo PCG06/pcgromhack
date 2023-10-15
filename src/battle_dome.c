@@ -1665,13 +1665,13 @@ static const u8 sTourneyTreePokeballCoords[DOME_TOURNAMENT_TRAINERS_COUNT + DOME
     {.tile = LINE_V_L,           .y =  9, .x = 17}, \
     {.tile = LINE_V_L,           .y = 10, .x = 17}, \
     {.tile = LINE_V_L_HALF_LOGO, .y = 11, .x = 17},
- 
+
 #define LINESECTION_SEMIFINAL_BOTTOM_RIGHT \
     {.tile = LINE_V_L_LOGO4, .y = 14, .x = 17}, \
     {.tile = LINE_V_L_LOGO3, .y = 13, .x = 17}, \
     {.tile = LINE_V_L_LOGO2, .y = 12, .x = 17}, \
     {.tile = LINE_V_L_LOGO1, .y = 11, .x = 17},
- 
+
 #define LINESECTION_FINAL_LEFT \
     {.tile = LINE_H_LOGO1, .y = 11, .x = 13}, \
     {.tile = LINE_H_LOGO2, .y = 11, .x = 14},
@@ -2796,7 +2796,6 @@ static int SelectOpponentMonsFromParty(int *partyMovePoints, bool8 allowRandom)
 static int GetTypeEffectivenessPoints(int move, int targetSpecies, int mode)
 {
     int defType1, defType2, defAbility, moveType;
-    int i = 0;
     int typePower = TYPE_x1;
 
     if (move == MOVE_NONE || move == MOVE_UNAVAILABLE || IS_MOVE_STATUS(move))

@@ -33,14 +33,15 @@
 #define ABILITYEFFECT_TRACE2                     10
 #define ABILITYEFFECT_MOVE_END_OTHER             11
 #define ABILITYEFFECT_NEUTRALIZINGGAS            12
-#define ABILITYEFFECT_FIELD_SPORT                13 // Only used if B_SPORT_TURNS < GEN_6
+#define ABILITYEFFECT_FIELD_SPORT                13 // Only used if B_SPORT_TURNS >= GEN_6
 #define ABILITYEFFECT_ON_WEATHER                 14
 #define ABILITYEFFECT_ON_TERRAIN                 15
 #define ABILITYEFFECT_SWITCH_IN_TERRAIN          16
 #define ABILITYEFFECT_SWITCH_IN_WEATHER          17
+#define ABILITYEFFECT_OPPORTUNIST                18
 // Special cases
-#define ABILITYEFFECT_MUD_SPORT                  252 // Only used if B_SPORT_TURNS < GEN_6
-#define ABILITYEFFECT_WATER_SPORT                253 // Only used if B_SPORT_TURNS < GEN_6
+#define ABILITYEFFECT_MUD_SPORT                  252 // Only used if B_SPORT_TURNS >= GEN_6
+#define ABILITYEFFECT_WATER_SPORT                253 // Only used if B_SPORT_TURNS >= GEN_6
 
 // For the first argument of ItemBattleEffects, to deteremine which block of item effects to try
 #define ITEMEFFECT_ON_SWITCH_IN                 0
@@ -147,6 +148,7 @@ bool32 TryChangeBattleWeather(u32 battler, u32 weatherEnumId, bool32 viaAbility)
 u32 AbilityBattleEffects(u32 caseID, u32 battler, u32 ability, u32 special, u32 moveArg);
 bool32 TryPrimalReversion(u32 battler);
 bool32 IsNeutralizingGasOnField(void);
+bool32 IsMoldBreakerTypeAbility(u32 ability);
 u32 GetBattlerAbility(u32 battler);
 u32 IsAbilityOnSide(u32 battler, u32 ability);
 u32 IsAbilityOnOpposingSide(u32 battler, u32 ability);

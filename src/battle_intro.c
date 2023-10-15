@@ -587,7 +587,6 @@ static void BattleIntroSlidePartner(u8 taskId)
 void DrawBattlerOnBg(int bgId, u8 x, u8 y, u8 battlerPosition, u8 paletteId, u8 *tiles, u16 *tilemap, u16 tilesOffset)
 {
     int i, j;
-    u8 battler = GetBattlerAtPosition(battlerPosition);
     int offset = tilesOffset;
     CpuCopy16(gMonSpritesGfxPtr->sprites.ptr[battlerPosition], tiles, BG_SCREEN_SIZE);
     LoadBgTiles(bgId, tiles, 0x1000, tilesOffset);
@@ -602,7 +601,7 @@ void DrawBattlerOnBg(int bgId, u8 x, u8 y, u8 battlerPosition, u8 paletteId, u8 
     LoadBgTilemap(bgId, tilemap, BG_SCREEN_SIZE, 0);
 }
 
-static void DrawBattlerOnBgDMA(u8 x, u8 y, u8 battlerPosition, u8 arg3, u8 paletteId, u16 arg5, u8 arg6, u8 arg7)
+static void UNUSED DrawBattlerOnBgDMA(u8 x, u8 y, u8 battlerPosition, u8 arg3, u8 paletteId, u16 arg5, u8 arg6, u8 arg7)
 {
     int i, j, offset;
 

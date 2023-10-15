@@ -64,8 +64,7 @@ bool8 ScriptMenu_MultichoiceWithDefault(u8 left, u8 top, u8 multichoiceId, bool8
     }
 }
 
-// Unused
-static u16 GetLengthWithExpandedPlayerName(const u8 *str)
+static u16 UNUSED GetLengthWithExpandedPlayerName(const u8 *str)
 {
     u16 length = 0;
 
@@ -274,8 +273,6 @@ static void Task_HandleMultichoiceInput(u8 taskId)
 
 bool8 ScriptMenu_YesNo(u8 left, u8 top)
 {
-    u8 taskId;
-
     if (FuncIsActiveTask(Task_HandleYesNoInput) == TRUE)
     {
         return FALSE;
@@ -284,7 +281,7 @@ bool8 ScriptMenu_YesNo(u8 left, u8 top)
     {
         gSpecialVar_Result = 0xFF;
         DisplayYesNoMenuDefaultYes();
-        taskId = CreateTask(Task_HandleYesNoInput, 0x50);
+        CreateTask(Task_HandleYesNoInput, 0x50);
         return TRUE;
     }
 }

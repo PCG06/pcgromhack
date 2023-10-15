@@ -86,6 +86,7 @@
                                              | BATTLE_TYPE_GROUDON | BATTLE_TYPE_KYOGRE | BATTLE_TYPE_RAYQUAZA))
 
 #define WILD_DOUBLE_BATTLE ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE && !(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_TRAINER))))
+#define RECORDED_WILD_BATTLE ((gBattleTypeFlags & BATTLE_TYPE_RECORDED) && !(gBattleTypeFlags & (BATTLE_TYPE_TRAINER | BATTLE_TYPE_FRONTIER)))
 #define BATTLE_TWO_VS_ONE_OPPONENT ((gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER && gTrainerBattleOpponent_B == 0xFFFF))
 #define BATTLE_TYPE_HAS_AI          (BATTLE_TYPE_TRAINER | BATTLE_TYPE_FIRST_BATTLE | BATTLE_TYPE_SAFARI | BATTLE_TYPE_ROAMER | BATTLE_TYPE_INGAME_PARTNER)
 
@@ -188,6 +189,7 @@
 #define STATUS4_WATER_SPORT             (1 << 3)    // Only used if B_SPORT_TURNS < GEN_6
 #define STATUS4_INFINITE_CONFUSION      (1 << 4)    // Used for Berserk Gene
 #define STATUS4_SALT_CURE               (1 << 5)
+#define STATUS4_SYRUP_BOMB              (1 << 6)
 
 #define HITMARKER_WAKE_UP_CLEAR         (1 << 4) // Cleared when waking up. Never set or checked.
 #define HITMARKER_SKIP_DMG_TRACK        (1 << 5)
@@ -384,8 +386,9 @@
 #define MOVE_EFFECT_STEALTH_ROCK        76
 #define MOVE_EFFECT_SPIKES              77
 #define MOVE_EFFECT_TRIPLE_ARROWS       78
+#define MOVE_EFFECT_SYRUP_BOMB          79
 
-#define NUM_MOVE_EFFECTS                79
+#define NUM_MOVE_EFFECTS                80
 
 #define MOVE_EFFECT_AFFECTS_USER        0x4000
 #define MOVE_EFFECT_CERTAIN             0x8000

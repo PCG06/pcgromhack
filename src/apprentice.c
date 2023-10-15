@@ -351,7 +351,7 @@ static u16 GetRandomAlternateMove(u8 monId)
     else // == APPRENTICE_LVL_MODE_OPEN
         level = 60; // Despite being open level, level up moves are only read up to level 60
 
-    for (j = 0; learnset[j].move != LEVEL_UP_END; j++)
+    for (j = 0; learnset[j].move != LEVEL_UP_MOVE_END; j++)
     {
         if (learnset[j].level > level)
             break;
@@ -468,7 +468,7 @@ static void GetLatestLearnedMoves(u16 species, u16 *moves)
         level = 60;
 
     learnset = gLevelUpLearnsets[species];
-    for (i = 0; learnset[i].move != LEVEL_UP_END; i++)
+    for (i = 0; learnset[i].move != LEVEL_UP_MOVE_END; i++)
     {
         if (learnset[i].level > level)
             break;
@@ -623,6 +623,9 @@ static void CreateApprenticeMenu(u8 menu)
     default:
         left = 0;
         top = 0;
+#ifdef UBFIX
+        return;
+#endif
         break;
     }
 
@@ -1278,8 +1281,7 @@ const u8 *GetApprenticeNameInLanguage(u32 apprenticeId, s32 language)
     }
 }
 
-// Functionally unused
-static void Task_SwitchToFollowupFuncAfterButtonPress(u8 taskId)
+static void UNUSED Task_SwitchToFollowupFuncAfterButtonPress(u8 taskId)
 {
     if (JOY_NEW(A_BUTTON) || JOY_NEW(B_BUTTON))
         SwitchTaskToFollowupFunc(taskId);
@@ -1302,8 +1304,7 @@ static void ExecuteFuncAfterButtonPress(void (*func)(void))
     gTasks[taskId].data[1] = (u32)(func) >> 16;
 }
 
-// Unused
-static void ExecuteFollowupFuncAfterButtonPress(TaskFunc task)
+static void UNUSED ExecuteFollowupFuncAfterButtonPress(TaskFunc task)
 {
     u8 taskId = CreateTask(Task_SwitchToFollowupFuncAfterButtonPress, 1);
     SetTaskFuncWithFollowupFunc(taskId, Task_SwitchToFollowupFuncAfterButtonPress, task);
