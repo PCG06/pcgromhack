@@ -11,7 +11,7 @@
 #include "constants/battle.h"
 
 
-static const struct TrainerMonCustomized sTestParty1[] =
+static const struct TrainerMon sTestParty1[] =
 {
     {
         .species = SPECIES_WOBBUFFET,
@@ -35,28 +35,10 @@ static const struct TrainerMonCustomized sTestParty1[] =
     },
 };
 
-static const struct TrainerMonNoItemDefaultMoves sTestParty2[] =
-{
-    {
-        .species = SPECIES_WOBBUFFET,
-        .lvl = 5,
-    },
-    {
-        .species = SPECIES_WOBBUFFET,
-        .lvl = 6,
-    }
-};
-
 static const struct Trainer sTestTrainer1 =
 {
     .trainerName = _("Test1"),
-    .party = EVERYTHING_CUSTOMIZED(sTestParty1),
-};
-
-static const struct Trainer sTestTrainer2 =
-{
-    .trainerName = _("Test2"),
-    .party = NO_ITEM_DEFAULT_MOVES(sTestParty2),
+    .party = TRAINER_PARTY(sTestParty1),
 };
 
 TEST("CreateNPCTrainerPartyForTrainer generates customized Pokémon")
@@ -124,8 +106,7 @@ TEST("CreateNPCTrainerPartyForTrainer generates customized Pokémon")
     GetMonData(&testParty[1], MON_DATA_NICKNAME, nickBuffer);
     EXPECT(StringCompare(nickBuffer, COMPOUND_STRING("Wobbuffet")) == 0);
 
-    EXPECT(GetGenderFromSpeciesAndPersonality(GetMonData(&testParty[0], MON_DATA_SPECIES, 0), testParty[0].box.personality) == MON_FEMALE);
-
+    EXPECT(GetMonGender(&testParty[0]) == MON_FEMALE);
     EXPECT(GetNature(&testParty[0]) == NATURE_HASTY);
 
     Free(testParty);
@@ -134,7 +115,7 @@ TEST("CreateNPCTrainerPartyForTrainer generates customized Pokémon")
 TEST("CreateNPCTrainerPartyForTrainer generates different personalities for different mons")
 {
     struct Pokemon *testParty = Alloc(6 * sizeof(struct Pokemon));
-    CreateNPCTrainerPartyFromTrainer(testParty, &sTestTrainer2, TRUE, BATTLE_TYPE_TRAINER);
+    CreateNPCTrainerPartyFromTrainer(testParty, &sTestTrainer1, TRUE, BATTLE_TYPE_TRAINER);
     EXPECT(testParty[0].box.personality != testParty[1].box.personality);
     Free(testParty);
 }
