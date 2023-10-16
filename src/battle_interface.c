@@ -194,6 +194,7 @@ static void SpriteCB_StatusSummaryBalls_Exit(struct Sprite *);
 static void SpriteCB_StatusSummaryBalls_OnSwitchout(struct Sprite *);
 
 static void SpriteCb_MegaTrigger(struct Sprite *);
+static void SpriteCb_BurstTrigger(struct Sprite *);
 static void MegaIndicator_SetVisibilities(u32 healthboxId, bool32 invisible);
 static void MegaIndicator_UpdateLevel(u32 healthboxId, u32 level);
 static void MegaIndicator_CreateSprite(u32 battlerId, u32 healthboxSpriteId);
@@ -676,6 +677,64 @@ static const struct SpriteTemplate sSpriteTemplate_MegaTrigger =
     .callback = SpriteCb_MegaTrigger
 };
 
+static const u8 ALIGNED(4) sBurstTriggerGfx[] = INCBIN_U8("graphics/battle_interface/burst_trigger.4bpp");
+static const u16 sBurstTriggerPal[] = INCBIN_U16("graphics/battle_interface/burst_trigger.gbapal");
+
+static const struct SpriteSheet sSpriteSheet_BurstTrigger =
+{
+    sBurstTriggerGfx, sizeof(sBurstTriggerGfx), TAG_BURST_TRIGGER_TILE
+};
+static const struct SpritePalette sSpritePalette_BurstTrigger =
+{
+    sBurstTriggerPal, TAG_BURST_TRIGGER_PAL
+};
+
+static const struct OamData sOamData_BurstTrigger =
+{
+    .y = 0,
+    .affineMode = 0,
+    .objMode = 0,
+    .mosaic = 0,
+    .bpp = 0,
+    .shape = ST_OAM_SQUARE,
+    .x = 0,
+    .matrixNum = 0,
+    .size = 2,
+    .tileNum = 0,
+    .priority = 1,
+    .paletteNum = 0,
+    .affineParam = 0,
+};
+
+static const union AnimCmd sSpriteAnim_BurstTriggerOff[] =
+{
+    ANIMCMD_FRAME(0, 0),
+    ANIMCMD_END
+};
+
+static const union AnimCmd sSpriteAnim_BurstTriggerOn[] =
+{
+    ANIMCMD_FRAME(16, 0),
+    ANIMCMD_END
+};
+
+static const union AnimCmd *const sSpriteAnimTable_BurstTrigger[] =
+{
+    sSpriteAnim_BurstTriggerOff,
+    sSpriteAnim_BurstTriggerOn,
+};
+
+static const struct SpriteTemplate sSpriteTemplate_BurstTrigger =
+{
+    .tileTag = TAG_BURST_TRIGGER_TILE,
+    .paletteTag = TAG_BURST_TRIGGER_PAL,
+    .oam = &sOamData_BurstTrigger,
+    .anims = sSpriteAnimTable_BurstTrigger,
+    .images = NULL,
+    .affineAnims = gDummySpriteAffineAnimTable,
+    .callback = SpriteCb_BurstTrigger
+};
+
 // Because the healthbox is too large to fit into one sprite, it is divided into two sprites.
 // healthboxLeft  or healthboxMain  is the left part that is used as the 'main' sprite.
 // healthboxRight or healthboxOther is the right part of the healthbox.
@@ -694,12 +753,6 @@ static const struct SpriteTemplate sSpriteTemplate_MegaTrigger =
 // data fields for healthbar
 #define hBar_HealthBoxSpriteId      data[5]
 #define hBar_Data6                  data[6]
-
-static void InitLastUsedBallAssets(void)
-{
-    gBattleStruct->ballSpriteIds[0] = MAX_SPRITES;
-    gBattleStruct->ballSpriteIds[1] = MAX_SPRITES;
-}
 
 // This function is here to cover a specific case - one player's mon in a 2 vs 1 double battle. In this scenario - display singles layout.
 // The same goes for a 2 vs 1 where opponent has only one pokemon.
@@ -721,7 +774,7 @@ u8 CreateBattlerHealthboxSprites(u8 battlerId)
 {
     s16 data6 = 0;
     u8 healthboxLeftSpriteId, healthboxRightSpriteId;
-    u8 healthbarSpriteId, megaIndicatorSpriteId;
+    u8 healthbarSpriteId;
     struct Sprite *healthBarSpritePtr;
 
     if (WhichBattleCoords(battlerId) == 0) // Singles
@@ -936,10 +989,8 @@ void UpdateOamPriorityInAllHealthboxes(u8 priority, bool32 hideHPBoxes)
 
         MegaIndicator_UpdateOamPriority(healthboxLeftSpriteId, priority);
 
-    #if B_HIDE_HEALTHBOX_IN_ANIMS
-        if (hideHPBoxes && IsBattlerAlive(i))
+        if (B_HIDE_HEALTHBOX_IN_ANIMS == TRUE && hideHPBoxes && IsBattlerAlive(i))
             TryToggleHealboxVisibility(priority, healthboxLeftSpriteId, healthboxRightSpriteId, healthbarSpriteId);
-    #endif
     }
 }
 
@@ -1031,7 +1082,7 @@ static void UpdateLvlInHealthbox(u8 healthboxSpriteId, u8 lvl)
 static void PrintHpOnHealthbox(u32 spriteId, s16 currHp, s16 maxHp, u32 bgColor, u32 rightTile, u32 leftTile)
 {
     u8 *windowTileData;
-    u32 windowId, tilesCount, x, healthboxTileNum;
+    u32 windowId, tilesCount, x;
     u8 text[28], *txtPtr;
     void *objVram = (void *)(OBJ_VRAM0) + gSprites[spriteId].oam.tileNum * TILE_SIZE_4BPP;
 
@@ -1418,6 +1469,7 @@ void HideMegaTriggerSprite(void)
 void HideTriggerSprites(void)
 {
     HideMegaTriggerSprite();
+    HideBurstTriggerSprite();
     HideZMoveTriggerSprite();
 }
 
@@ -1432,6 +1484,128 @@ void DestroyMegaTriggerSprite(void)
 
 #undef tBattler
 #undef tHide
+
+// Ultra Burst Trigger icon functions.
+void ChangeBurstTriggerSprite(u8 spriteId, u8 animId)
+{
+    StartSpriteAnim(&gSprites[spriteId], animId);
+}
+
+#define SINGLES_BURST_TRIGGER_POS_X_OPTIMAL (30)
+#define SINGLES_BURST_TRIGGER_POS_X_PRIORITY (31)
+#define SINGLES_BURST_TRIGGER_POS_X_SLIDE (15)
+#define SINGLES_BURST_TRIGGER_POS_Y_DIFF (-11)
+
+#define DOUBLES_BURST_TRIGGER_POS_X_OPTIMAL (30)
+#define DOUBLES_BURST_TRIGGER_POS_X_PRIORITY (31)
+#define DOUBLES_BURST_TRIGGER_POS_X_SLIDE (15)
+#define DOUBLES_BURST_TRIGGER_POS_Y_DIFF (-4)
+
+#define tBattler    data[0]
+#define tHide       data[1]
+
+void CreateBurstTriggerSprite(u8 battlerId, u8 palId)
+{
+    LoadSpritePalette(&sSpritePalette_BurstTrigger);
+    if (GetSpriteTileStartByTag(TAG_BURST_TRIGGER_TILE) == 0xFFFF)
+        LoadSpriteSheet(&sSpriteSheet_BurstTrigger);
+    if (gBattleStruct->burst.triggerSpriteId == 0xFF)
+    {
+        if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+            gBattleStruct->burst.triggerSpriteId = CreateSprite(&sSpriteTemplate_BurstTrigger,
+                                                             gSprites[gHealthboxSpriteIds[battlerId]].x - DOUBLES_BURST_TRIGGER_POS_X_SLIDE,
+                                                             gSprites[gHealthboxSpriteIds[battlerId]].y - DOUBLES_BURST_TRIGGER_POS_Y_DIFF, 0);
+        else
+            gBattleStruct->burst.triggerSpriteId = CreateSprite(&sSpriteTemplate_BurstTrigger,
+                                                             gSprites[gHealthboxSpriteIds[battlerId]].x - SINGLES_BURST_TRIGGER_POS_X_SLIDE,
+                                                             gSprites[gHealthboxSpriteIds[battlerId]].y - SINGLES_BURST_TRIGGER_POS_Y_DIFF, 0);
+    }
+    gSprites[gBattleStruct->burst.triggerSpriteId].tBattler = battlerId;
+    gSprites[gBattleStruct->burst.triggerSpriteId].tHide = FALSE;
+
+    ChangeBurstTriggerSprite(gBattleStruct->burst.triggerSpriteId, palId);
+}
+
+static void SpriteCb_BurstTrigger(struct Sprite *sprite)
+{
+    s32 xSlide, xPriority, xOptimal;
+    s32 yDiff;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+    {
+        xSlide = DOUBLES_BURST_TRIGGER_POS_X_SLIDE;
+        xPriority = DOUBLES_BURST_TRIGGER_POS_X_PRIORITY;
+        xOptimal = DOUBLES_BURST_TRIGGER_POS_X_OPTIMAL;
+        yDiff = DOUBLES_BURST_TRIGGER_POS_Y_DIFF;
+    }
+    else
+    {
+        xSlide = SINGLES_BURST_TRIGGER_POS_X_SLIDE;
+        xPriority = SINGLES_BURST_TRIGGER_POS_X_PRIORITY;
+        xOptimal = SINGLES_BURST_TRIGGER_POS_X_OPTIMAL;
+        yDiff = SINGLES_BURST_TRIGGER_POS_Y_DIFF;
+    }
+
+    if (sprite->tHide)
+    {
+        if (sprite->x != gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xSlide)
+            sprite->x++;
+
+        if (sprite->x >= gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xPriority)
+            sprite->oam.priority = 2;
+        else
+            sprite->oam.priority = 1;
+
+        sprite->y = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y - yDiff;
+        sprite->y2 = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y2 - yDiff;
+        if (sprite->x == gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xSlide)
+            DestroyBurstTriggerSprite();
+    }
+    else
+    {
+        if (sprite->x != gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xOptimal)
+            sprite->x--;
+
+        if (sprite->x >= gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xPriority)
+            sprite->oam.priority = 2;
+        else
+            sprite->oam.priority = 1;
+
+        sprite->y = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y - yDiff;
+        sprite->y2 = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y2 - yDiff;
+    }
+}
+
+bool32 IsBurstTriggerSpriteActive(void)
+{
+    if (GetSpriteTileStartByTag(TAG_BURST_TRIGGER_TILE) == 0xFFFF)
+        return FALSE;
+    else if (IndexOfSpritePaletteTag(TAG_BURST_TRIGGER_PAL) != 0xFF)
+        return TRUE;
+    else
+        return FALSE;
+}
+
+void HideBurstTriggerSprite(void)
+{
+    if (gBattleStruct->burst.triggerSpriteId >= MAX_SPRITES)
+        return;
+    ChangeBurstTriggerSprite(gBattleStruct->burst.triggerSpriteId, 0);
+    gSprites[gBattleStruct->burst.triggerSpriteId].tHide = TRUE;
+}
+
+void DestroyBurstTriggerSprite(void)
+{
+    FreeSpritePaletteByTag(TAG_BURST_TRIGGER_PAL);
+    FreeSpriteTilesByTag(TAG_BURST_TRIGGER_TILE);
+    if (gBattleStruct->burst.triggerSpriteId != 0xFF)
+        DestroySprite(&gSprites[gBattleStruct->burst.triggerSpriteId]);
+    gBattleStruct->burst.triggerSpriteId = 0xFF;
+}
+
+#undef tBattler
+#undef tHide
+
 
 // Code for Mega Evolution (And Alpha/Omega) Trigger icon visible on the battler's healthbox.
 enum
@@ -1510,7 +1684,6 @@ void MegaIndicator_LoadSpritesGfx(void)
 
 static bool32 MegaIndicator_ShouldBeInvisible(u32 battlerId, struct Sprite *sprite)
 {
-    u32 side = GetBattlerSide(battlerId);
     bool32 megaEvolved = IsBattlerMegaEvolved(battlerId);
     bool32 primalReverted = IsBattlerPrimalReverted(battlerId);
 
@@ -1557,7 +1730,6 @@ static void MegaIndicator_UpdateOamPriority(u32 healthboxId, u32 oamPriority)
 
 static void MegaIndicator_UpdateLevel(u32 healthboxId, u32 level)
 {
-    u32 i;
     s16 xDelta = 0;
     u8 *spriteId = MegaIndicator_GetSpriteId(healthboxId);
 
@@ -1572,7 +1744,7 @@ static void MegaIndicator_UpdateLevel(u32 healthboxId, u32 level)
 static void MegaIndicator_CreateSprite(u32 battlerId, u32 healthboxSpriteId)
 {
     struct SpriteTemplate sprTemplate;
-    u32 position, level;
+    u32 position;
     u8 *spriteId;
     s16 xHealthbox = 0, y = 0;
     s32 x = 0;
@@ -2095,7 +2267,7 @@ static void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     gender = GetMonGender(mon);
     species = GetMonData(mon, MON_DATA_SPECIES);
 
-    if ((species == SPECIES_NIDORAN_F || species == SPECIES_NIDORAN_M) && StringCompare(nickname, gSpeciesNames[species]) == 0)
+    if ((species == SPECIES_NIDORAN_F || species == SPECIES_NIDORAN_M) && StringCompare(nickname, GetSpeciesName(species)) == 0)
         gender = 100;
 
     // AddTextPrinterAndCreateWindowOnHealthbox's arguments are the same in all 3 cases.
@@ -2432,15 +2604,12 @@ s32 MoveBattleBar(u8 battlerId, u8 healthboxSpriteId, u8 whichBar, u8 unused)
 
     if (whichBar == HEALTH_BAR) // health bar
     {
+        u16 hpFraction = B_FAST_HP_DRAIN == FALSE ? 1 : max(gBattleSpritesDataPtr->battleBars[battlerId].maxValue / B_HEALTHBAR_PIXELS, 1);
         currentBarValue = CalcNewBarValue(gBattleSpritesDataPtr->battleBars[battlerId].maxValue,
                     gBattleSpritesDataPtr->battleBars[battlerId].oldValue,
                     gBattleSpritesDataPtr->battleBars[battlerId].receivedValue,
                     &gBattleSpritesDataPtr->battleBars[battlerId].currValue,
-                #if B_FAST_HP_DRAIN == TRUE
-                    B_HEALTHBAR_PIXELS / 8, max(gBattleSpritesDataPtr->battleBars[battlerId].maxValue / B_HEALTHBAR_PIXELS, 1));
-                #else
-                    B_HEALTHBAR_PIXELS / 8, 1);
-                #endif
+                    B_HEALTHBAR_PIXELS / 8, hpFraction);
     }
     else // exp bar
     {
@@ -3057,9 +3226,11 @@ static void RestoreOverwrittenPixels(u8 *tiles)
 
 void CreateAbilityPopUp(u8 battlerId, u32 ability, bool32 isDoubleBattle)
 {
-#if B_ABILITY_POP_UP == TRUE
     const s16 (*coords)[2];
     u8 spriteId1, spriteId2, battlerPosition, taskId;
+
+    if (B_ABILITY_POP_UP == FALSE)
+        return;
 
     if (gTestRunnerEnabled)
     {
@@ -3130,7 +3301,6 @@ void CreateAbilityPopUp(u8 battlerId, u32 ability, bool32 isDoubleBattle)
     PrintBattlerOnAbilityPopUp(battlerId, spriteId1, spriteId2);
     PrintAbilityOnAbilityPopUp(ability, spriteId1, spriteId2);
     RestoreOverwrittenPixels((void*)(OBJ_VRAM0) + (gSprites[spriteId1].oam.tileNum * 32));
-#endif
 }
 
 void UpdateAbilityPopup(u8 battlerId)
@@ -3213,10 +3383,10 @@ static const struct OamData sOamData_LastUsedBall =
     .objMode = 0,
     .mosaic = 0,
     .bpp = 0,
-    .shape = SPRITE_SHAPE(32x32),
+    .shape = (B_LAST_USED_BALL_CYCLE == TRUE ? SPRITE_SHAPE(32x64) : SPRITE_SHAPE(32x32)),
     .x = 0,
     .matrixNum = 0,
-    .size = SPRITE_SIZE(32x32),
+    .size = (B_LAST_USED_BALL_CYCLE == TRUE ? SPRITE_SIZE(32x64) : SPRITE_SIZE(32x32)),
     .tileNum = 0,
     .priority = 1,
     .paletteNum = 0,
@@ -3234,7 +3404,11 @@ static const struct SpriteTemplate sSpriteTemplate_LastUsedBallWindow =
     .callback = SpriteCB_LastUsedBallWin
 };
 
-#if B_LAST_USED_BALL_BUTTON == R_BUTTON
+#if B_LAST_USED_BALL_BUTTON == R_BUTTON && B_LAST_USED_BALL_CYCLE == TRUE
+    static const u8 ALIGNED(4) sLastUsedBallWindowGfx[] = INCBIN_U8("graphics/battle_interface/last_used_ball_r_cycle.4bpp");
+#elif B_LAST_USED_BALL_CYCLE == TRUE
+    static const u8 ALIGNED(4) sLastUsedBallWindowGfx[] = INCBIN_U8("graphics/battle_interface/last_used_ball_l_cycle.4bpp");
+#elif B_LAST_USED_BALL_BUTTON == R_BUTTON
     static const u8 ALIGNED(4) sLastUsedBallWindowGfx[] = INCBIN_U8("graphics/battle_interface/last_used_ball_r.4bpp");
 #else
     static const u8 ALIGNED(4) sLastUsedBallWindowGfx[] = INCBIN_U8("graphics/battle_interface/last_used_ball_l.4bpp");
@@ -3244,42 +3418,48 @@ static const struct SpriteSheet sSpriteSheet_LastUsedBallWindow =
     sLastUsedBallWindowGfx, sizeof(sLastUsedBallWindowGfx), LAST_BALL_WINDOW_TAG
 };
 
-#define LAST_USED_BALL_X_F    15
-#define LAST_USED_BALL_X_0    -15
+#define LAST_USED_BALL_X_F    14
+#define LAST_USED_BALL_X_0    -14
 #define LAST_USED_BALL_Y      ((IsDoubleBattle()) ? 78 : 68)
+#define LAST_USED_BALL_Y_BNC  ((IsDoubleBattle()) ? 76 : 66)
 
-#define LAST_BALL_WIN_X_F       (LAST_USED_BALL_X_F - 1)
-#define LAST_BALL_WIN_X_0       (LAST_USED_BALL_X_0 - 1)
+#define LAST_BALL_WIN_X_F       (LAST_USED_BALL_X_F - 0)
+#define LAST_BALL_WIN_X_0       (LAST_USED_BALL_X_0 - 0)
 #define LAST_USED_WIN_Y         (LAST_USED_BALL_Y - 8)
 
 #define sHide  data[0]
+#define sTimer  data[1]
+#define sMoving data[2]
+#define sBounce data[3] // 0 = Bounce down; 1 = Bounce up
+
+#define sState     data[0]
+#define sSameBall  data[1]
 
 bool32 CanThrowLastUsedBall(void)
 {
-#if B_LAST_USED_BALL == FALSE
-    return FALSE;
-#else
+    if (B_LAST_USED_BALL == FALSE)
+        return FALSE;
     if (!CanThrowBall())
         return FALSE;
     if (gBattleTypeFlags & (BATTLE_TYPE_TRAINER | BATTLE_TYPE_FRONTIER))
         return FALSE;
-    if (!CheckBagHasItem(gLastThrownBall, 1))
+    if (!CheckBagHasItem(gBallToDisplay, 1))
         return FALSE;
 
     return TRUE;
-#endif
 }
 
 void TryAddLastUsedBallItemSprites(void)
 {
-#if B_LAST_USED_BALL == TRUE
+    if (B_LAST_USED_BALL == FALSE)
+        return;
     if (gLastThrownBall == 0
       || (gLastThrownBall != 0 && !CheckBagHasItem(gLastThrownBall, 1)))
     {
         // we're out of the last used ball, so just set it to the first ball in the bag
         // we have to compact the bag first bc it is typically only compacted when you open it
         CompactItemsInBagPocket(&gBagPockets[BALLS_POCKET]);
-        gLastThrownBall = gBagPockets[BALLS_POCKET].itemSlots[0].itemId;
+        gBallToDisplay = gBagPockets[BALLS_POCKET].itemSlots[0].itemId;
     }
 
     if (!CanThrowLastUsedBall())
@@ -3288,10 +3468,11 @@ void TryAddLastUsedBallItemSprites(void)
     // ball
     if (gBattleStruct->ballSpriteIds[0] == MAX_SPRITES)
     {
-        gBattleStruct->ballSpriteIds[0] = AddItemIconSprite(102, 102, gLastThrownBall);
+        gBattleStruct->ballSpriteIds[0] = AddItemIconSprite(102, 102, gBallToDisplay);
         gSprites[gBattleStruct->ballSpriteIds[0]].x = LAST_USED_BALL_X_0;
         gSprites[gBattleStruct->ballSpriteIds[0]].y = LAST_USED_BALL_Y;
         gSprites[gBattleStruct->ballSpriteIds[0]].sHide = FALSE;   // restore
+        gLastUsedBallMenuPresent = TRUE;
         gSprites[gBattleStruct->ballSpriteIds[0]].callback = SpriteCB_LastUsedBall;
     }
 
@@ -3306,8 +3487,10 @@ void TryAddLastUsedBallItemSprites(void)
                                                        LAST_BALL_WIN_X_0,
                                                        LAST_USED_WIN_Y, 5);
         gSprites[gBattleStruct->ballSpriteIds[1]].sHide = FALSE;   // restore
+        gLastUsedBallMenuPresent = TRUE;
     }
-#endif
+    if (B_LAST_USED_BALL_CYCLE == TRUE)
+        ArrowsChangeColorLastBallCycle(0); //Default the arrows to be invisible
 }
 
 static void DestroyLastUsedBallWinGfx(struct Sprite *sprite)
@@ -3347,6 +3530,9 @@ static void SpriteCB_LastUsedBall(struct Sprite *sprite)
 {
     if (sprite->sHide)
     {
+        if (sprite->y < LAST_USED_BALL_Y) // Used to recover from an incomplete bounce before hiding the window
+            sprite->y++;
+
         if (sprite->x != LAST_USED_BALL_X_0)
             sprite->x--;
 
@@ -3362,7 +3548,8 @@ static void SpriteCB_LastUsedBall(struct Sprite *sprite)
 
 static void TryHideOrRestoreLastUsedBall(u8 caseId)
 {
-#if B_LAST_USED_BALL == TRUE
+    if (B_LAST_USED_BALL == FALSE)
+        return;
     if (gBattleStruct->ballSpriteIds[0] == MAX_SPRITES)
         return;
 
@@ -3373,30 +3560,150 @@ static void TryHideOrRestoreLastUsedBall(u8 caseId)
             gSprites[gBattleStruct->ballSpriteIds[0]].sHide = TRUE;   // hide
         if (gBattleStruct->ballSpriteIds[1] != MAX_SPRITES)
             gSprites[gBattleStruct->ballSpriteIds[1]].sHide = TRUE;   // hide
+        gLastUsedBallMenuPresent = FALSE;
         break;
     case 1: // restore
         if (gBattleStruct->ballSpriteIds[0] != MAX_SPRITES)
             gSprites[gBattleStruct->ballSpriteIds[0]].sHide = FALSE;   // restore
         if (gBattleStruct->ballSpriteIds[1] != MAX_SPRITES)
             gSprites[gBattleStruct->ballSpriteIds[1]].sHide = FALSE;   // restore
+        gLastUsedBallMenuPresent = TRUE;
         break;
     }
-#endif
+    if (B_LAST_USED_BALL_CYCLE == TRUE)
+        ArrowsChangeColorLastBallCycle(0); //Default the arrows to be invisible
 }
 
 void TryHideLastUsedBall(void)
 {
-#if B_LAST_USED_BALL == TRUE
-    TryHideOrRestoreLastUsedBall(0);
-#endif
+    if (B_LAST_USED_BALL == TRUE)
+        TryHideOrRestoreLastUsedBall(0);
 }
 
 void TryRestoreLastUsedBall(void)
 {
-#if B_LAST_USED_BALL == TRUE
+    if (B_LAST_USED_BALL == FALSE)
+        return;
+
     if (gBattleStruct->ballSpriteIds[0] != MAX_SPRITES)
         TryHideOrRestoreLastUsedBall(1);
     else
         TryAddLastUsedBallItemSprites();
+}
+
+static void SpriteCB_LastUsedBallBounce(struct Sprite *sprite)
+{
+    if ((sprite->sTimer++ % 4) != 0)  // Change the image every 4 frame
+        return;
+    if (sprite->sBounce)
+    {
+        if (sprite->y > LAST_USED_BALL_Y_BNC)
+            sprite->y--;
+        else
+            sprite->sMoving = FALSE;
+    }
+    else
+    {
+        if (sprite->y < LAST_USED_BALL_Y)
+            sprite->y++;
+        else
+            sprite->sMoving = FALSE;
+    }
+}
+
+static void Task_BounceBall(u8 taskId)
+{
+    struct Sprite *sprite = &gSprites[gBattleStruct->ballSpriteIds[0]];
+    struct Task *task = &gTasks[taskId];
+    switch(task->sState)
+    {
+    case 0:  // Bounce up
+        sprite->sBounce = TRUE;
+        sprite->sMoving = TRUE;
+        sprite->callback = SpriteCB_LastUsedBallBounce;
+        if (task->sSameBall)
+            task->sState = 3;
+        else
+            task->sState = 1;
+        break;
+    case 1:  // Destroy Icon
+        if (!sprite->sMoving)
+        {
+            DestroyLastUsedBallGfx(sprite);
+            task->sState++;
+        }  // Passthrough
+    case 2: //Create New Icon
+        if (!sprite->inUse)
+        {
+            gBattleStruct->ballSpriteIds[0] = AddItemIconSprite(102, 102, gBallToDisplay);
+            gSprites[gBattleStruct->ballSpriteIds[0]].x = LAST_USED_BALL_X_F;
+            gSprites[gBattleStruct->ballSpriteIds[0]].y = LAST_USED_BALL_Y_BNC;
+            task->sState++;
+        }  // Fallthrough
+    case 3: // Bounce Down
+        if (!sprite->sMoving)
+        {
+            sprite->sBounce = FALSE;
+            sprite->sMoving = TRUE;
+            sprite->callback = SpriteCB_LastUsedBallBounce; //Show and bounce down
+            task->sState++;
+        }
+        break;
+    case 4:  // Destroy Task
+        if(!sprite->sMoving)
+        {
+            sprite->callback = SpriteCB_LastUsedBall;
+            DestroyTask(taskId);
+        }
+    }
+    if (!gLastUsedBallMenuPresent)
+    {
+        // Used to check if the R button was released before the animation was complete
+        sprite->callback = SpriteCB_LastUsedBall;
+        DestroyTask(taskId);
+    }
+}
+
+void SwapBallToDisplay(bool32 sameBall)
+{
+    u8 taskId;
+    taskId = CreateTask(Task_BounceBall, 10);
+    gTasks[taskId].sSameBall = sameBall;
+}
+
+void ArrowsChangeColorLastBallCycle(bool32 showArrows)
+{
+#if B_LAST_USED_BALL == TRUE && B_LAST_USED_BALL_CYCLE == TRUE
+    u16 paletteNum = 16 + gSprites[gBattleStruct->ballSpriteIds[1]].oam.paletteNum;
+    struct PlttData *defaultPlttArrow;
+    struct PlttData *defaultPlttOutline;
+    struct PlttData *pltArrow;
+    struct PlttData *pltOutline;
+    if (gBattleStruct->ballSpriteIds[1] == MAX_SPRITES)
+        return;
+    paletteNum *= 16;
+    pltArrow = (struct PlttData *)&gPlttBufferFaded[paletteNum + 9];  // Arrow color is in idx 9
+    pltOutline = (struct PlttData *)&gPlttBufferFaded[paletteNum + 8];  // Arrow outline is in idx 8
+    if (!showArrows) //Make invisible
+    {
+        defaultPlttArrow = (struct PlttData *)&gPlttBufferFaded[paletteNum + 13];  // Background color is idx 13
+        pltArrow->r = defaultPlttArrow->r;
+        pltArrow->g = defaultPlttArrow->g;
+        pltArrow->b = defaultPlttArrow->b;
+        pltOutline->r = defaultPlttArrow->r;
+        pltOutline->g = defaultPlttArrow->g;
+        pltOutline->b = defaultPlttArrow->b;
+    }
+    else // Make gray
+    {
+        defaultPlttArrow = (struct PlttData *)&gPlttBufferFaded[paletteNum + 11];  // Grey color is idx 11
+        defaultPlttOutline = (struct PlttData *)&gPlttBufferFaded[paletteNum + 10];  //Light grey color for outline is idx 10
+        pltArrow->r = defaultPlttArrow->r;
+        pltArrow->g = defaultPlttArrow->g;
+        pltArrow->b = defaultPlttArrow->b;
+        pltOutline->r = defaultPlttOutline->r;
+        pltOutline->g = defaultPlttOutline->g;
+        pltOutline->b = defaultPlttOutline->b;
+    }
 #endif
 }

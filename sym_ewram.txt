@@ -153,3 +153,5 @@
 	.include "src/tm_case.o"
     .include "src/map_preview.o"
 	.include "src/tx_registered_items_menu.o"
+	.include "src/battle_controller_player.o"
+	.include "src/pokedex_plus_hgss.o"

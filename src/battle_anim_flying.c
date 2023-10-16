@@ -157,7 +157,7 @@ static const union AnimCmd sAnim_FallingFeather_1[] =
     ANIMCMD_END,
 };
 
-static const union AnimCmd *const sAnims_FallingFeather[] =
+const union AnimCmd *const gAnims_FallingFeather[] =
 {
     sAnim_FallingFeather_0,
     sAnim_FallingFeather_1,
@@ -168,7 +168,7 @@ const struct SpriteTemplate gFallingFeatherSpriteTemplate =
     .tileTag = ANIM_TAG_WHITE_FEATHER,
     .paletteTag = ANIM_TAG_WHITE_FEATHER,
     .oam = &gOamData_AffineNormal_ObjNormal_32x32,
-    .anims = sAnims_FallingFeather,
+    .anims = gAnims_FallingFeather,
     .images = NULL,
     .affineAnims = gDummySpriteAffineAnimTable,
     .callback = AnimFallingFeather,
@@ -1216,8 +1216,7 @@ void AnimSkyAttackBird_Step(struct Sprite *sprite)
         DestroySpriteAndMatrix(sprite);
 }
 
-// Unused
-static void AnimTask_SetAttackerVisibility(u8 taskId)
+static void UNUSED AnimTask_SetAttackerVisibility(u8 taskId)
 {
     if (gBattleAnimArgs[0] == 0)
     {

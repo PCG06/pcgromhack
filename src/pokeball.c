@@ -527,17 +527,17 @@ const struct SpriteTemplate gBallSpriteTemplates[POKEBALL_COUNT] =
 #define tBattler         data[3]
 #define tOpponentBattler data[4]
 
-u8 DoPokeballSendOutAnimation(s16 pan, u8 kindOfThrow)
+u8 DoPokeballSendOutAnimation(u32 battler, s16 pan, u8 kindOfThrow)
 {
     u8 taskId;
 
     gDoingBattleAnim = TRUE;
-    gBattleSpritesDataPtr->healthBoxesData[gActiveBattler].ballAnimActive = TRUE;
+    gBattleSpritesDataPtr->healthBoxesData[battler].ballAnimActive = TRUE;
 
     taskId = CreateTask(Task_DoPokeballSendOutAnim, 5);
     gTasks[taskId].tPan = pan;
     gTasks[taskId].tThrowId = kindOfThrow;
-    gTasks[taskId].tBattler = gActiveBattler;
+    gTasks[taskId].tBattler = battler;
 
     return 0;
 }
@@ -1418,7 +1418,7 @@ static void SpriteCB_TradePokeballEnd(struct Sprite *sprite)
 #undef sTimer
 
 // Unreferenced here and in RS, but used in FRLG, possibly by mistake.
-static void DestroySpriteAndFreeResources_Ball(struct Sprite *sprite)
+static void UNUSED DestroySpriteAndFreeResources_Ball(struct Sprite *sprite)
 {
     DestroySpriteAndFreeResources(sprite);
 }

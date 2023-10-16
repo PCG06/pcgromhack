@@ -8,11 +8,11 @@ ASSUMPTIONS
     ASSUME(gBattleMoves[MOVE_TACKLE].power != 0);
     ASSUME(gBattleMoves[MOVE_AIR_CUTTER].power != 0);
     ASSUME(gBattleMoves[MOVE_AIR_CUTTER].target == MOVE_TARGET_BOTH);
-    ASSUME(gBattleMoves[MOVE_AIR_CUTTER].flags & FLAG_WIND_MOVE);
+    ASSUME(gBattleMoves[MOVE_AIR_CUTTER].windMove == TRUE);
     ASSUME(gBattleMoves[MOVE_PETAL_BLIZZARD].power != 0);
     ASSUME(gBattleMoves[MOVE_PETAL_BLIZZARD].target == MOVE_TARGET_FOES_AND_ALLY);
-    ASSUME(gBattleMoves[MOVE_PETAL_BLIZZARD].flags & FLAG_WIND_MOVE);
-    ASSUME(!(gBattleMoves[MOVE_TACKLE].flags & FLAG_WIND_MOVE));
+    ASSUME(gBattleMoves[MOVE_PETAL_BLIZZARD].windMove == TRUE);
+    ASSUME(gBattleMoves[MOVE_TACKLE].windMove == FALSE);
 }
 
 SINGLE_BATTLE_TEST("Wind Power sets up Charge for player when hit by a wind move")
@@ -107,7 +107,7 @@ SINGLE_BATTLE_TEST("Wind Power sets up Charge for opponent when hit by a wind mo
 
 DOUBLE_BATTLE_TEST("Wind Power activates correctly for every battler with the ability when hit by a 2/3 target move")
 {
-    u16 move, abilityLeft, abilityRight;
+    u16 abilityLeft, abilityRight;
 
     PARAMETRIZE {abilityLeft = ABILITY_NONE, abilityRight = ABILITY_WIND_POWER;}
     PARAMETRIZE {abilityLeft = ABILITY_WIND_POWER, abilityRight = ABILITY_NONE; }
