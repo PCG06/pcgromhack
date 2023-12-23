@@ -687,7 +687,10 @@ static void HandleInputChooseMove(u32 battler)
 
     if (JOY_NEW(A_BUTTON))
     {
-        FlagClear(FLAG_SYS_MOVE_INFO);
+        if (B_BATTLE_MOVE_INFO == TRUE)
+        {
+            FlagClear(FLAG_SYS_MOVE_INFO);
+        }
         PlaySE(SE_SELECT);
         if (moveInfo->moves[gMoveSelectionCursor[battler]] == MOVE_CURSE)
         {
@@ -816,24 +819,30 @@ static void HandleInputChooseMove(u32 battler)
             BtlController_EmitTwoReturnValues(battler, BUFFER_B, 10, 0xFFFF);
             HideTriggerSprites();
             PlayerBufferExecCompleted(battler);
-            FlagClear(FLAG_SYS_MOVE_INFO);
+            if (B_BATTLE_MOVE_INFO == TRUE)
+            {
+                FlagClear(FLAG_SYS_MOVE_INFO);
+            }
         }
     }
-    else if (JOY_NEW(L_BUTTON) || gPlayerDpadHoldFrames > 59)
+    else if (JOY_NEW(B_BATTLE_MOVE_INFO_BUTTON) || gPlayerDpadHoldFrames > 59)
     {
-        if(!FlagGet(FLAG_SYS_MOVE_INFO))
+        if (B_BATTLE_MOVE_INFO == TRUE)
         {
-            MoveSelectionDestroyCursorAt(gMoveSelectionCursor[battler]);
-            MoveSelectionCreateCursorAt(0, 0);
-            MoveSelectionDisplayInfo(battler);
-            FlagSet(FLAG_SYS_MOVE_INFO);
-        }
-        else
-        {
-            MoveSelectionDestroyCursorAt(0);
-            MoveSelectionDisplayMoveNames(battler);
-            MoveSelectionCreateCursorAt(gMoveSelectionCursor[battler], 0);
-            FlagClear(FLAG_SYS_MOVE_INFO);
+            if(!FlagGet(FLAG_SYS_MOVE_INFO))
+            {
+                MoveSelectionDestroyCursorAt(gMoveSelectionCursor[battler]);
+                MoveSelectionCreateCursorAt(0, 0);
+                MoveSelectionDisplayInfo(battler);
+                FlagSet(FLAG_SYS_MOVE_INFO);
+            }
+            else
+            {
+                MoveSelectionDestroyCursorAt(0);
+                MoveSelectionDisplayMoveNames(battler);
+                MoveSelectionCreateCursorAt(gMoveSelectionCursor[battler], 0);
+                FlagClear(FLAG_SYS_MOVE_INFO);
+            }
         }
     }
     else if (JOY_NEW(DPAD_LEFT) && !gBattleStruct->zmove.viewing && !FlagGet(FLAG_SYS_MOVE_INFO))
@@ -1775,7 +1784,10 @@ static void MoveSelectionDisplayMoveType(u32 battler)
 
     StringCopy(txtPtr, gTypeNames[type]);
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_TYPE);
-    MoveSelectionDisplaySplitIcon(battler);
+    if (B_PSS_SPLIT_ICONS == TRUE)
+    {
+        MoveSelectionDisplaySplitIcon(battler);
+    }
 }
 
 void MoveSelectionCreateCursorAt(u8 cursorPosition, u8 baseTileNum)
@@ -2374,8 +2386,18 @@ static void MoveSelectionDisplayInfo(u32 battler)
     u32 holdEffectDef = GetBattlerHoldEffect(battlerDef, TRUE);
     u32 weather = gBattleWeather;
     bool32 updateFlags = FALSE;
-    u32 power = CalcMoveBasePowerAfterModifiers(move, battlerAtk, battlerDef, moveType, updateFlags, atkAbility, defAbility, holdEffectAtk, weather);  // shows real base power after modifiers
-    u32 accuracy = GetTotalAccuracy(battlerAtk, battlerDef, move, atkAbility, defAbility, holdEffectAtk, holdEffectDef);                               // shows real accuracy after modifiers
+    u32 power = 0;
+    u32 accuracy = 0;
+    if (B_UPDATED_BATTLE_MOVE_INFO == TRUE) // in include/config/battle.h
+    {
+        power = CalcMoveBasePowerAfterModifiers(move, battlerAtk, battlerDef, moveType, updateFlags, atkAbility, defAbility, holdEffectAtk, weather);  // shows real base power after modifiers
+        accuracy = GetTotalAccuracy(battlerAtk, battlerDef, move, atkAbility, defAbility, holdEffectAtk, holdEffectDef);                               // shows real accuracy after modifiers
+    }
+    else
+    {
+        power = gBattleMoves[move].power; // for base power without modifiers
+        accuracy = gBattleMoves[move].accuracy; // for base accuracy without modifiers
+    }                              // shows real accuracy after modifiers
 
     //Move Name
     StringCopy(gDisplayedStringBattle, gMoveNames[move]);
@@ -2385,7 +2407,6 @@ static void MoveSelectionDisplayInfo(u32 battler)
     CopyWindowToVram(B_WIN_MOVE_NAME_1 , 3);
 
     // Move Power
-    //power = gBattleMoves[move].power; // for base power without modifiers
     if (gBattleMoves[move].power == 0) // for status moves
     {
         StringExpandPlaceholders(gStringVar1, gPowerZeroText);
@@ -2400,7 +2421,6 @@ static void MoveSelectionDisplayInfo(u32 battler)
 	CopyWindowToVram(B_WIN_MOVE_NAME_3 , 3);
 
     // Move Accuracy
-    //accuracy = gBattleMoves[move].accuracy; // for base accuracy without modifiers
     if (gBattleMoves[move].accuracy == 0) // for never-miss moves
     {
         StringExpandPlaceholders(gStringVar1, gNoMissText);
@@ -2416,9 +2436,13 @@ static void MoveSelectionDisplayInfo(u32 battler)
 
     // Contact Move
     if (gBattleMoves[move].makesContact == TRUE)
+    {
 	    StringExpandPlaceholders(gStringVar4, gContactText);
+    }
     else
+    {
         StringExpandPlaceholders(gStringVar4, gNoContactText);
+    }
     BattlePutTextOnWindow(gStringVar4, B_WIN_MOVE_NAME_2);
     PutWindowTilemap(B_WIN_MOVE_NAME_2 );
 	CopyWindowToVram(B_WIN_MOVE_NAME_2 , 3);
