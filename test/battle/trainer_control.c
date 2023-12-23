@@ -4,6 +4,7 @@
 #include "battle_main.h"
 #include "data.h"
 #include "malloc.h"
+#include "random.h"
 #include "string_util.h"
 #include "constants/item.h"
 #include "constants/abilities.h"
@@ -106,8 +107,7 @@ TEST("CreateNPCTrainerPartyForTrainer generates customized Pokémon")
     GetMonData(&testParty[1], MON_DATA_NICKNAME, nickBuffer);
     EXPECT(StringCompare(nickBuffer, COMPOUND_STRING("Wobbuffet")) == 0);
 
-    EXPECT(GetGenderFromSpeciesAndPersonality(GetMonData(&testParty[0], MON_DATA_SPECIES, 0), testParty[0].box.personality) == MON_FEMALE);
-
+    EXPECT(GetMonGender(&testParty[0]) == MON_FEMALE);
     EXPECT(GetNature(&testParty[0]) == NATURE_HASTY);
 
     Free(testParty);
@@ -119,4 +119,18 @@ TEST("CreateNPCTrainerPartyForTrainer generates different personalities for diff
     CreateNPCTrainerPartyFromTrainer(testParty, &sTestTrainer1, TRUE, BATTLE_TYPE_TRAINER);
     EXPECT(testParty[0].box.personality != testParty[1].box.personality);
     Free(testParty);
+}
+
+TEST("ModifyPersonalityForNature can set any nature")
+{
+    u32 personality = 0, nature = 0, j = 0, k = 0;
+    for (j = 0; j < 64; j++)
+    {
+        for (k = 0; k < NUM_NATURES; k++)
+        {
+            PARAMETRIZE { personality = Random32(); nature = k; }
+        }
+    }
+    ModifyPersonalityForNature(&personality, nature);
+    EXPECT_EQ(GetNatureFromPersonality(personality), nature);
 }

@@ -25,11 +25,12 @@ SINGLE_BATTLE_TEST("Multi hit Moves hit the maximum amount with Skill Link")
     }
 }
 
-SINGLE_BATTLE_TEST("Multi hit Moves hit twice 35 Percent of the time")
+SINGLE_BATTLE_TEST("Multi hit Moves hit twice 35% of the time")
 {
     PASSES_RANDOMLY(35, 100, RNG_HITS);
 
     GIVEN {
+        ASSUME(B_MULTI_HIT_CHANCE >= GEN_5);
         PLAYER(SPECIES_WOBBUFFET);
         OPPONENT(SPECIES_WOBBUFFET);
     } WHEN {
@@ -41,11 +42,12 @@ SINGLE_BATTLE_TEST("Multi hit Moves hit twice 35 Percent of the time")
     }
 }
 
-SINGLE_BATTLE_TEST("Multi hit Moves hit thrice 35 Percent of the time")
+SINGLE_BATTLE_TEST("Multi hit Moves hit thrice 35% of the time")
 {
     PASSES_RANDOMLY(35, 100, RNG_HITS);
 
     GIVEN {
+        ASSUME(B_MULTI_HIT_CHANCE >= GEN_5);
         PLAYER(SPECIES_WOBBUFFET);
         OPPONENT(SPECIES_WOBBUFFET);
     } WHEN {
@@ -58,11 +60,12 @@ SINGLE_BATTLE_TEST("Multi hit Moves hit thrice 35 Percent of the time")
     }
 }
 
-SINGLE_BATTLE_TEST("Multi hit Moves hit four times 35 Percent of the time")
+SINGLE_BATTLE_TEST("Multi hit Moves hit four times 15% of the time")
 {
     PASSES_RANDOMLY(15, 100, RNG_HITS);
 
     GIVEN {
+        ASSUME(B_MULTI_HIT_CHANCE >= GEN_5);
         PLAYER(SPECIES_WOBBUFFET);
         OPPONENT(SPECIES_WOBBUFFET);
     } WHEN {
@@ -76,11 +79,12 @@ SINGLE_BATTLE_TEST("Multi hit Moves hit four times 35 Percent of the time")
     }
 }
 
-SINGLE_BATTLE_TEST("Multi hit Moves hit four times 35 Percent of the time")
+SINGLE_BATTLE_TEST("Multi hit Moves hit five times 15% of the time")
 {
     PASSES_RANDOMLY(15, 100, RNG_HITS);
 
     GIVEN {
+        ASSUME(B_MULTI_HIT_CHANCE >= GEN_5);
         PLAYER(SPECIES_WOBBUFFET);
         OPPONENT(SPECIES_WOBBUFFET);
     } WHEN {
@@ -134,7 +138,7 @@ SINGLE_BATTLE_TEST("Multi hit Moves hit five times 50 Percent of the time with L
     }
 }
 
-SINGLE_BATTLE_TEST("Scale Shot decreses defense and increases speed after final hit")
+SINGLE_BATTLE_TEST("Scale Shot decreases defense and increases speed after final hit")
 {
     GIVEN {
         ASSUME(gBattleMoves[MOVE_SCALE_SHOT].effect == EFFECT_MULTI_HIT);
@@ -156,7 +160,7 @@ SINGLE_BATTLE_TEST("Scale Shot decreses defense and increases speed after final 
     }
 }
 
-SINGLE_BATTLE_TEST("Endure does not prevent multiply hits and stat changes accure at the end of the turn")
+SINGLE_BATTLE_TEST("Endure does not prevent multiple hits and stat changes occur at the end of the turn")
 {
     GIVEN {
         ASSUME(gBattleMoves[MOVE_SCALE_SHOT].effect == EFFECT_MULTI_HIT);

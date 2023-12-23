@@ -26,7 +26,7 @@ SINGLE_BATTLE_TEST("Quark Drive boosts either Attack or Special Attack, not both
 {
     u16 species;
     u32 move;
-    u16 damage[2];
+    s16 damage[2];
 
     PARAMETRIZE { species = SPECIES_BELLSPROUT; move = MOVE_TACKLE; }
     PARAMETRIZE { species = SPECIES_BELLSPROUT; move = MOVE_ROUND; }
@@ -58,7 +58,7 @@ SINGLE_BATTLE_TEST("Quark Drive either boosts Defense or Special Defense, not bo
 {
     u16 species;
     u32 move;
-    u16 damage[2];
+    s16 damage[2];
 
     PARAMETRIZE { species = SPECIES_ONIX; move = MOVE_TACKLE; }
     PARAMETRIZE { species = SPECIES_ONIX; move = MOVE_ROUND; }
@@ -83,5 +83,53 @@ SINGLE_BATTLE_TEST("Quark Drive either boosts Defense or Special Defense, not bo
             EXPECT_MUL_EQ(damage[0], Q_4_12(0.7), damage[1]);
         else
             EXPECT_EQ(damage[0], damage[1]);
+    }
+}
+
+SINGLE_BATTLE_TEST("Quark Drive ability pop up activates only once during the duration of electric terrain")
+{
+    u16 turns;
+
+    GIVEN {
+        PLAYER(SPECIES_BELLSPROUT) { Ability(ABILITY_QUARK_DRIVE); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_ELECTRIC_TERRAIN); }
+        for (turns = 0; turns < 4; turns++)
+            TURN {}
+        TURN { MOVE(opponent, MOVE_ELECTRIC_TERRAIN); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_ELECTRIC_TERRAIN, opponent);
+        ABILITY_POPUP(player, ABILITY_QUARK_DRIVE);
+        MESSAGE("The Electric Terrain activated Bellsprout's Quark Drive!");
+        MESSAGE("Bellsprout's Attack was heightened!");
+        NONE_OF {
+            for (turns = 0; turns < 4; turns++) {
+                ABILITY_POPUP(player, ABILITY_QUARK_DRIVE);
+                MESSAGE("The Electric Terrain activated Bellsprout's Quark Drive!");
+                MESSAGE("Bellsprout's Attack was heightened!");
+            }
+        }
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_ELECTRIC_TERRAIN, opponent);
+        ABILITY_POPUP(player, ABILITY_QUARK_DRIVE);
+        MESSAGE("The Electric Terrain activated Bellsprout's Quark Drive!");
+        MESSAGE("Bellsprout's Attack was heightened!");
+    }
+}
+
+SINGLE_BATTLE_TEST("Quark Drive activates on switch-in")
+{
+    KNOWN_FAILING; // Fails because of wrong species
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_BELLSPROUT) { Ability(ABILITY_QUARK_DRIVE); }
+        OPPONENT(SPECIES_TAPU_KOKO) { Ability(ABILITY_ELECTRIC_SURGE); };
+    } WHEN {
+        TURN { SWITCH(player, 1); }
+    } SCENE {
+        ABILITY_POPUP(opponent, ABILITY_ELECTRIC_SURGE);
+        ABILITY_POPUP(player, ABILITY_QUARK_DRIVE);
+        MESSAGE("The Electric Terrain activated Bellsprout's Quark Drive!");
+        MESSAGE("Bellsprout's Attack was heightened!");
     }
 }
