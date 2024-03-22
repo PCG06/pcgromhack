@@ -25,11 +25,9 @@ SINGLE_BATTLE_TEST("Dire Claw can inflict poison, paralysis or sleep")
         ANIMATION(ANIM_TYPE_STATUS, statusAnim, opponent);
         if (statusAnim == B_ANIM_STATUS_PRZ) {
             STATUS_ICON(opponent, paralysis: TRUE);
-        }
-        else if (statusAnim == B_ANIM_STATUS_SLP) {
+        } else if (statusAnim == B_ANIM_STATUS_SLP) {
             STATUS_ICON(opponent, sleep: TRUE);
-        }
-        else if (statusAnim == B_ANIM_STATUS_PSN) {
+        } else if (statusAnim == B_ANIM_STATUS_PSN) {
             STATUS_ICON(opponent, poison: TRUE);
         }
     }
@@ -53,12 +51,13 @@ SINGLE_BATTLE_TEST("Dire Claw cannot poison/paralyze poison/electric types respe
     } SCENE {
         ANIMATION(ANIM_TYPE_MOVE, MOVE_DIRE_CLAW, player);
         HP_BAR(opponent);
-        NOT ANIMATION(ANIM_TYPE_STATUS, statusAnim, opponent);
-        if (statusAnim == B_ANIM_STATUS_PRZ) {
-            NOT STATUS_ICON(opponent, paralysis: TRUE);
-        }
-        else if (statusAnim == B_ANIM_STATUS_PSN) {
-            NOT STATUS_ICON(opponent, poison: TRUE);
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_STATUS, statusAnim, opponent);
+            if (statusAnim == B_ANIM_STATUS_PRZ) {
+                STATUS_ICON(opponent, paralysis: TRUE);
+            } else if (statusAnim == B_ANIM_STATUS_PSN) {
+                STATUS_ICON(opponent, poison: TRUE);
+            }
         }
     }
 }
@@ -70,9 +69,7 @@ SINGLE_BATTLE_TEST("Dire Claw cannot poison/paralyze/cause to fall asleep pokemo
     u32 rng;
     PARAMETRIZE { statusAnim = B_ANIM_STATUS_PRZ; rng = MOVE_EFFECT_PARALYSIS; species = SPECIES_RAICHU; ability = ABILITY_LIGHTNING_ROD; }
     PARAMETRIZE { statusAnim = B_ANIM_STATUS_PRZ; rng = MOVE_EFFECT_PARALYSIS; species = SPECIES_JOLTEON; ability = ABILITY_VOLT_ABSORB; }
-    #if P_GEN_4_POKEMON == TRUE
     PARAMETRIZE { statusAnim = B_ANIM_STATUS_PRZ; rng = MOVE_EFFECT_PARALYSIS; species = SPECIES_ELECTIVIRE; ability = ABILITY_MOTOR_DRIVE; }
-    #endif // P_GEN_4_POKEMON
     PARAMETRIZE { statusAnim = B_ANIM_STATUS_PSN; rng = MOVE_EFFECT_POISON; species = SPECIES_ZANGOOSE; ability = ABILITY_IMMUNITY; }
     PARAMETRIZE { statusAnim = B_ANIM_STATUS_SLP; rng = MOVE_EFFECT_SLEEP; species = SPECIES_VIGOROTH; ability = ABILITY_VITAL_SPIRIT; }
     PARAMETRIZE { statusAnim = B_ANIM_STATUS_SLP; rng = MOVE_EFFECT_SLEEP; species = SPECIES_HYPNO; ability = ABILITY_INSOMNIA; }
@@ -86,15 +83,15 @@ SINGLE_BATTLE_TEST("Dire Claw cannot poison/paralyze/cause to fall asleep pokemo
     } SCENE {
         ANIMATION(ANIM_TYPE_MOVE, MOVE_DIRE_CLAW, player);
         HP_BAR(opponent);
-        NOT ANIMATION(ANIM_TYPE_STATUS, statusAnim, opponent);
-        if (statusAnim == B_ANIM_STATUS_PRZ) {
-            NOT STATUS_ICON(opponent, paralysis: TRUE);
-        }
-        else if (statusAnim == B_ANIM_STATUS_SLP) {
-            NOT STATUS_ICON(opponent, sleep: TRUE);
-        }
-        else if (statusAnim == B_ANIM_STATUS_PSN) {
-            NOT STATUS_ICON(opponent, poison: TRUE);
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_STATUS, statusAnim, opponent);
+            if (statusAnim == B_ANIM_STATUS_PRZ) {
+                STATUS_ICON(opponent, paralysis: TRUE);
+            } else if (statusAnim == B_ANIM_STATUS_SLP) {
+                STATUS_ICON(opponent, sleep: TRUE);
+            } else if (statusAnim == B_ANIM_STATUS_PSN) {
+                STATUS_ICON(opponent, poison: TRUE);
+            }
         }
     }
 }
@@ -115,15 +112,15 @@ SINGLE_BATTLE_TEST("Dire Claw cannot poison/paralyze/cause to fall asleep a mon 
     } SCENE {
         ANIMATION(ANIM_TYPE_MOVE, MOVE_DIRE_CLAW, player);
         HP_BAR(opponent);
-        NOT ANIMATION(ANIM_TYPE_STATUS, statusAnim, opponent);
-        if (statusAnim == B_ANIM_STATUS_PRZ) {
-            NOT STATUS_ICON(opponent, paralysis: TRUE);
-        }
-        else if (statusAnim == B_ANIM_STATUS_SLP) {
-            NOT STATUS_ICON(opponent, sleep: TRUE);
-        }
-        else if (statusAnim == B_ANIM_STATUS_PSN) {
-            NOT STATUS_ICON(opponent, poison: TRUE);
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_STATUS, statusAnim, opponent);
+            if (statusAnim == B_ANIM_STATUS_PRZ) {
+                STATUS_ICON(opponent, paralysis: TRUE);
+            } else if (statusAnim == B_ANIM_STATUS_SLP) {
+                STATUS_ICON(opponent, sleep: TRUE);
+            } else if (statusAnim == B_ANIM_STATUS_PSN) {
+                STATUS_ICON(opponent, poison: TRUE);
+            }
         }
     }
 }

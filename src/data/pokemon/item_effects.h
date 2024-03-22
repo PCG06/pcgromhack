@@ -618,6 +618,7 @@ const u8 *const gItemEffectTable[ITEMS_COUNT] =
     [ITEM_METAL_COAT]         = gItemEffect_EvoItem,
     [ITEM_KINGS_ROCK]         = gItemEffect_EvoItem,
     [ITEM_RAZOR_CLAW]         = gItemEffect_EvoItem,
+    [ITEM_RAZOR_FANG]         = gItemEffect_EvoItem,
     [ITEM_AUSPICIOUS_ARMOR]   = gItemEffect_EvoItem,
     [ITEM_MALICIOUS_ARMOR]    = gItemEffect_EvoItem,
     [ITEM_SCROLL_OF_DARKNESS] = gItemEffect_EvoItem,
@@ -625,6 +626,9 @@ const u8 *const gItemEffectTable[ITEMS_COUNT] =
     [ITEM_BLACK_AUGURITE]     = gItemEffect_EvoItem,
     [ITEM_LINKING_CORD]       = gItemEffect_EvoItem,
     [ITEM_PEAT_BLOCK]         = gItemEffect_EvoItem,
+    [ITEM_SYRUPY_APPLE]       = gItemEffect_EvoItem,
+    [ITEM_UNREMARKABLE_TEACUP] = gItemEffect_EvoItem,
+    [ITEM_MASTERPIECE_TEACUP] = gItemEffect_EvoItem,
 
     // Berries
     [ITEM_CHERI_BERRY]        = gItemEffect_CheriBerry,

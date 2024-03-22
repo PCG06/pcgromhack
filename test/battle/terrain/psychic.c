@@ -21,7 +21,6 @@ SINGLE_BATTLE_TEST("Psychic Terrain protects grounded battlers from priority mov
 SINGLE_BATTLE_TEST("Psychic Terrain activates Psychic Seed and Mimicry")
 {
     GIVEN {
-        ASSUME(P_GEN_8_POKEMON == TRUE);
         ASSUME(gItems[ITEM_PSYCHIC_SEED].holdEffect == HOLD_EFFECT_SEEDS);
         ASSUME(gItems[ITEM_PSYCHIC_SEED].holdEffectParam == HOLD_EFFECT_PARAM_PSYCHIC_TERRAIN);
         PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_PSYCHIC_SEED); }
@@ -78,7 +77,6 @@ SINGLE_BATTLE_TEST("Psychic Terrain doesn't block priority moves that target the
 
 SINGLE_BATTLE_TEST("Psychic Terrain doesn't block priority moves that target all battlers")
 {
-    KNOWN_FAILING;
     GIVEN {
         PLAYER(SPECIES_SABLEYE) { Ability(ABILITY_PRANKSTER); }
         OPPONENT(SPECIES_WOBBUFFET);
@@ -93,7 +91,6 @@ SINGLE_BATTLE_TEST("Psychic Terrain doesn't block priority moves that target all
 
 SINGLE_BATTLE_TEST("Psychic Terrain doesn't block priority moves that target all opponents")
 {
-    KNOWN_FAILING;
     GIVEN {
         PLAYER(SPECIES_SABLEYE) { Ability(ABILITY_PRANKSTER); }
         OPPONENT(SPECIES_WOBBUFFET);
@@ -124,7 +121,6 @@ DOUBLE_BATTLE_TEST("Psychic Terrain doesn't block priority moves that target all
 
 SINGLE_BATTLE_TEST("Psychic Terrain doesn't block priority field moves")
 {
-    KNOWN_FAILING;
     GIVEN {
         PLAYER(SPECIES_SABLEYE) { Ability(ABILITY_PRANKSTER); }
         OPPONENT(SPECIES_WOBBUFFET);

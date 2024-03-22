@@ -47,6 +47,7 @@ struct TestRunnerState
     u8 expectedResult;
     bool8 expectLeaks:1;
     bool8 inBenchmark:1;
+    bool8 tearDown:1;
     u32 timeoutSeconds;
 };
 
@@ -58,8 +59,8 @@ extern const struct TestRunner gAssumptionsRunner;
 
 struct FunctionTestRunnerState
 {
-    u8 parameters;
-    u8 runParameter;
+    u16 parameters;
+    u16 runParameter;
 };
 
 extern const struct TestRunner gFunctionTestRunner;
@@ -164,6 +165,9 @@ struct Benchmark { s32 ticks; };
 static inline void BenchmarkStart(void)
 {
     gTestRunnerState.inBenchmark = TRUE;
+    // Wait for a v-blank so that comparing two benchmarks is not affected
+    // by the v-count (different numbers of IRQs may run).
+    VBlankIntrWait();
     REG_TM3CNT = (TIMER_ENABLE | TIMER_64CLK) << 16;
 }
 

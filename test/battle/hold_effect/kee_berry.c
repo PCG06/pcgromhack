@@ -4,31 +4,43 @@
 ASSUMPTIONS
 {
     ASSUME(gItems[ITEM_KEE_BERRY].holdEffect == HOLD_EFFECT_KEE_BERRY);
+    ASSUME(gBattleMoves[MOVE_TACKLE].split == SPLIT_PHYSICAL);
 }
 
 SINGLE_BATTLE_TEST("Kee Berry raises the holder's Defense by one stage when hit by a physical move")
 {
+    u16 move;
+
+    PARAMETRIZE { move = MOVE_SWIFT; }
+    PARAMETRIZE { move = MOVE_TACKLE; }
+
     GIVEN {
-        ASSUME(gBattleMoves[MOVE_TACKLE].split == SPLIT_PHYSICAL);
+        ASSUME(gBattleMoves[MOVE_SWIFT].split == SPLIT_SPECIAL);
         PLAYER(SPECIES_WOBBUFFET);
         OPPONENT(SPECIES_WOBBUFFET) { Item(ITEM_KEE_BERRY); }
     } WHEN {
-        TURN { MOVE(player, MOVE_TACKLE); }
+        TURN { MOVE(player, move); }
     } SCENE {
-        ANIMATION(ANIM_TYPE_MOVE, MOVE_TACKLE, player);
+        ANIMATION(ANIM_TYPE_MOVE, move, player);
         HP_BAR(opponent);
-        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
-        MESSAGE("Using Kee Berry, the Defense of Foe Wobbuffet rose!");
+        if (move == MOVE_TACKLE) {
+            ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
+            MESSAGE("Using Kee Berry, the Defense of Foe Wobbuffet rose!");
+        } else {
+            NONE_OF {
+                ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
+                MESSAGE("Using Kee Berry, the Defense of Foe Wobbuffet rose!");
+            }
+        }
     } THEN {
-        EXPECT_EQ(opponent->statStages[STAT_DEF], DEFAULT_STAT_STAGE + 1);
+        if (move == MOVE_TACKLE)
+            EXPECT_EQ(opponent->statStages[STAT_DEF], DEFAULT_STAT_STAGE + 1);
     }
 }
 
 SINGLE_BATTLE_TEST("Kee Berry raises the holder's Defense by two stages with Ripen when hit by a physical move")
 {
     GIVEN {
-        ASSUME(P_GEN_8_POKEMON == TRUE);
-        ASSUME(gBattleMoves[MOVE_TACKLE].split == SPLIT_PHYSICAL);
         PLAYER(SPECIES_WOBBUFFET);
         OPPONENT(SPECIES_APPLIN) { Item(ITEM_KEE_BERRY); Ability(ABILITY_RIPEN); }
     } WHEN {
@@ -43,18 +55,21 @@ SINGLE_BATTLE_TEST("Kee Berry raises the holder's Defense by two stages with Rip
     }
 }
 
-SINGLE_BATTLE_TEST("Kee Berry is not triggered by a special move")
+SINGLE_BATTLE_TEST("Kee Berry doesn't trigger if the item hold user used a physical move")
 {
     GIVEN {
-        ASSUME(gBattleMoves[MOVE_SWIFT].split == SPLIT_SPECIAL);
-        PLAYER(SPECIES_WOBBUFFET);
-        OPPONENT(SPECIES_WOBBUFFET) { Item(ITEM_KEE_BERRY); }
+        PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_KEE_BERRY); }
+        OPPONENT(SPECIES_WOBBUFFET);
     } WHEN {
-        TURN { MOVE(player, MOVE_SWIFT); }
+        TURN { MOVE(player, MOVE_TACKLE); }
     } SCENE {
-        ANIMATION(ANIM_TYPE_MOVE, MOVE_SWIFT, player);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_TACKLE, player);
         HP_BAR(opponent);
-        NOT ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
-        NOT MESSAGE("Using Kee Berry, the Defense of Foe Wobbuffet rose!");
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
+            MESSAGE("Using Kee Berry, the Defense of Wobbuffet rose!");
+        }
+    } THEN {
+        EXPECT_EQ(player->statStages[STAT_DEF], DEFAULT_STAT_STAGE);
     }
 }

@@ -202,7 +202,6 @@ SINGLE_BATTLE_TEST("Red Card does not activate if stolen by Magician")
     PARAMETRIZE { item = ITEM_POTION; activate = TRUE; }
 
     GIVEN {
-        ASSUME(P_GEN_6_POKEMON == TRUE);
         PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_RED_CARD); }
         OPPONENT(SPECIES_FENNEKIN) { Ability(ABILITY_MAGICIAN); Item(item); }
         OPPONENT(SPECIES_WYNAUT);
@@ -384,7 +383,6 @@ SINGLE_BATTLE_TEST("Red Card does not activate if attacker's Sheer Force applied
 SINGLE_BATTLE_TEST("Red Card activates before Emergency Exit")
 {
     GIVEN {
-        ASSUME(P_GEN_7_POKEMON == TRUE);
         PLAYER(SPECIES_GOLISOPOD) { MaxHP(100); HP(51); Item(ITEM_RED_CARD); }
         PLAYER(SPECIES_WIMPOD);
         OPPONENT(SPECIES_WOBBUFFET);
@@ -429,6 +427,23 @@ SINGLE_BATTLE_TEST("Red Card is consumed after dragged out replacement has its S
         }
     } THEN {
         EXPECT(opponent->item == ITEM_NONE);
+    }
+}
+
+SINGLE_BATTLE_TEST("Red Card does not cause the dragged out mon to lose hp due to it's held Life Orb")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WYNAUT) { Item(ITEM_LIFE_ORB); }
+        OPPONENT(SPECIES_WOBBUFFET) { Item(ITEM_RED_CARD); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_TACKLE); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_TACKLE, player);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
+        MESSAGE("Foe Wobbuffet held up its Red Card against Wobbuffet!");
+        MESSAGE("Wynaut was dragged out!");
+        NOT MESSAGE("Wynaut was hurt by its Life Orb!");
     }
 }
 

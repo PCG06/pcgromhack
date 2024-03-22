@@ -21,7 +21,6 @@ sound/**/*.bin
 sound/songs/midi/*.s
 tools/agbcc
 *.map
-*.ld
 *.bat
 *.dump
 *.sa*
@@ -40,3 +39,4 @@ prefabs.json
 *.sym
 *.js
 ./pyro-list.txt
+src/data/map_group_count.h

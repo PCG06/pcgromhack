@@ -70,6 +70,9 @@
 #define FLDEFF_MOVE_DEOXYS_ROCK          66
 #define FLDEFF_USE_ROCK_CLIMB            67
 #define FLDEFF_ROCK_CLIMB_DUST           68
+#define FLDEFF_USE_VS_SEEKER             69 //nice
+#define FLDEFF_X_ICON                    70
+#define FLDEFF_DOUBLE_EXCL_MARK_ICON     71
 
 #define FLDEFFOBJ_SHADOW_S              0
 #define FLDEFFOBJ_SHADOW_M              1

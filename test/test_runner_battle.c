@@ -27,6 +27,8 @@
 #define INVALID(fmt, ...) Test_ExitWithResult(TEST_RESULT_INVALID, "%s:%d: " fmt, gTestRunnerState.test->filename, sourceLine, ##__VA_ARGS__)
 #define INVALID_IF(c, fmt, ...) do { if (c) Test_ExitWithResult(TEST_RESULT_INVALID, "%s:%d: " fmt, gTestRunnerState.test->filename, sourceLine, ##__VA_ARGS__); } while (0)
 
+#define ASSUMPTION_FAIL_IF(c, fmt, ...) do { if (c) Test_ExitWithResult(TEST_RESULT_ASSUMPTION_FAIL, "%s:%d: " fmt, gTestRunnerState.test->filename, sourceLine, ##__VA_ARGS__); } while (0)
+
 #define STATE gBattleTestRunnerState
 #define DATA gBattleTestRunnerState->data
 
@@ -149,6 +151,7 @@ static u32 BattleTest_EstimateCost(void *data)
 {
     u32 cost;
     const struct BattleTest *test = data;
+    memset(STATE, 0, sizeof(*STATE));
     STATE->runRandomly = TRUE;
     InvokeTestFunction(test);
     cost = 1;
@@ -1481,6 +1484,7 @@ void OpenPokemon(u32 sourceLine, u32 side, u32 species)
     u8 *partySize;
     struct Pokemon *party;
     INVALID_IF(species >= SPECIES_EGG, "Invalid species: %d", species);
+    ASSUMPTION_FAIL_IF(!IsSpeciesEnabled(species), "Species disabled: %d", species);
     if (side == B_SIDE_PLAYER)
     {
         partySize = &DATA.playerPartySize;
@@ -1491,7 +1495,7 @@ void OpenPokemon(u32 sourceLine, u32 side, u32 species)
         partySize = &DATA.opponentPartySize;
         party = DATA.recordedBattle.opponentParty;
     }
-    INVALID_IF(*partySize == PARTY_SIZE, "Too many Pokemon in party");
+    INVALID_IF(*partySize >= PARTY_SIZE, "Too many Pokemon in party");
     DATA.currentSide = side;
     DATA.currentPartyIndex = *partySize;
     DATA.currentMon = &party[DATA.currentPartyIndex];
@@ -1979,6 +1983,9 @@ void MoveGetIdAndSlot(s32 battlerId, struct MoveContext *ctx, u32 *moveId, u32 *
 
     if (ctx->explicitUltraBurst && ctx->ultraBurst)
         *moveSlot |= RET_ULTRA_BURST;
+
+    if (ctx->explicitDynamax && ctx->dynamax)
+        *moveSlot |= RET_DYNAMAX;
 }
 
 void Move(u32 sourceLine, struct BattlePokemon *battler, struct MoveContext ctx)
@@ -2303,8 +2310,18 @@ static const char *const sQueueGroupTypeMacros[] =
 void OpenQueueGroup(u32 sourceLine, enum QueueGroupType type)
 {
     INVALID_IF(DATA.queueGroupType, "%s inside %s", sQueueGroupTypeMacros[type], sQueueGroupTypeMacros[DATA.queueGroupType]);
-    DATA.queueGroupType = type;
-    DATA.queueGroupStart = DATA.queuedEventsCount;
+    if (DATA.queuedEventsCount > 0
+     && DATA.queuedEvents[DATA.queueGroupStart].groupType == QUEUE_GROUP_NONE_OF
+     && DATA.queuedEvents[DATA.queueGroupStart].groupSize == DATA.queuedEventsCount - DATA.queueGroupStart
+     && type == QUEUE_GROUP_NONE_OF)
+    {
+        INVALID("'NOT x; NOT y;', did you mean 'NONE_OF { x; y; }'?");
+    }
+    else
+    {
+        DATA.queueGroupType = type;
+        DATA.queueGroupStart = DATA.queuedEventsCount;
+    }
 }
 
 void CloseQueueGroup(u32 sourceLine)
