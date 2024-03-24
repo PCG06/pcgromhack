@@ -82,6 +82,7 @@ static void HandleInputChooseMove(u32 battler);
 static void MoveSelectionDisplayPpNumber(u32 battler);
 static void MoveSelectionDisplayPpString(u32 battler);
 static void MoveSelectionDisplayMoveType(u32 battler);
+static void MoveSelectionDisplayMoveTypeDoubles(u8 targetId, u32 battler);
 static void MoveSelectionDisplayMoveNames(u32 battler);
 static void HandleMoveSwitching(u32 battler);
 static void SwitchIn_HandleSoundAndEnd(u32 battler);
@@ -512,6 +513,7 @@ static void HandleInputChooseTarget(u32 battler)
                     i++;
                     break;
                 }
+                MoveSelectionDisplayMoveTypeDoubles(GetBattlerPosition(gMultiUsePlayerCursor), battler);
 
                 if (gAbsentBattlerFlags & gBitTable[gMultiUsePlayerCursor]
                  || !CanTargetBattler(battler, gMultiUsePlayerCursor, move))
@@ -562,6 +564,7 @@ static void HandleInputChooseTarget(u32 battler)
                     i++;
                     break;
                 }
+                MoveSelectionDisplayMoveTypeDoubles(GetBattlerPosition(gMultiUsePlayerCursor), battler);
 
                 if (gAbsentBattlerFlags & gBitTable[gMultiUsePlayerCursor]
                  || !CanTargetBattler(battler, gMultiUsePlayerCursor, move))
@@ -787,6 +790,7 @@ static void HandleInputChooseMove(u32 battler)
                 gMultiUsePlayerCursor = GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT);
             else
                 gMultiUsePlayerCursor = GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);
+            MoveSelectionDisplayMoveTypeDoubles(GetBattlerPosition(gMultiUsePlayerCursor), battler);
 
             gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_ShowAsMoveTarget;
             break;
@@ -1727,36 +1731,121 @@ static void MoveSelectionDisplayPpNumber(u32 battler)
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_PP_REMAINING);
 }
 
+#define COLOR_SUPER_EFFECTIVE 24
+#define COLOR_NOT_VERY_EFFECTIVE 25
+#define COLOR_IMMUNE 26
+#define COLOR_EFFECTIVE 10
+
+u8 TypeEffectiveness(u8 targetId, u32 battler)
+{
+    u16 move;
+    u32 moveType;
+    uq4_12_t modifier;
+    move = gBattleMons[battler].moves[gMoveSelectionCursor[battler]];
+    // todo account for hidden power and maybe other dynamic move types?
+    moveType = gMovesInfo[move].type;
+
+    modifier = CalcTypeEffectivenessMultiplier(move, moveType, battler, targetId, GetBattlerAbility(targetId), TRUE);
+    
+    if (modifier == UQ_4_12(0.0)) {
+			return COLOR_IMMUNE; // 26 - no effect
+    }
+    else if (modifier <= UQ_4_12(0.5)) {
+            return COLOR_NOT_VERY_EFFECTIVE; // 25 - not very effective
+    }
+    else if (modifier >= UQ_4_12(2.0)) {
+            return COLOR_SUPER_EFFECTIVE; // 24 - super effective
+    }
+    else
+        return COLOR_EFFECTIVE; // 10 - normal effectiveness
+}
+
+//todo: account for ivy cudgel (see 1.7.0 expansion update)
+static void MoveSelectionDisplayMoveTypeDoubles(u8 targetId, u32 battler)
+{
+	u8 *txtPtr;
+    u8 typeColor = TypeEffectiveness(targetId, battler);
+	struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct*)(&gBattleResources->bufferA[battler][4]);
+    u8 moveType = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].type;
+    u8 movePower = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].power;
+    u8 battlerType1 = gBattleMons[battler].type1;
+    u8 battlerType2 = gBattleMons[battler].type2;
+
+	txtPtr = StringCopy(gDisplayedStringBattle, gTypesInfo[moveType].name);
+
+    // not sure why this was here tbh, leaving it in just in case
+	// txtPtr[0] = EXT_CTRL_CODE_BEGIN;
+	// txtPtr++;
+	// txtPtr[0] = 6;
+	// txtPtr++;
+	// txtPtr[0] = 1;
+	// txtPtr++;
+
+    if (typeColor != COLOR_EFFECTIVE) {
+        *(txtPtr)++ = EXT_CTRL_CODE_BEGIN;
+        *(txtPtr)++ = EXT_CTRL_CODE_FONT;
+        *(txtPtr)++ = FONT_NORMAL;
+
+        switch (typeColor) {
+            case COLOR_IMMUNE:
+                StringCopy(txtPtr, gText_MoveInterfaceImmune);
+                break;
+            case COLOR_NOT_VERY_EFFECTIVE:
+                StringCopy(txtPtr, gText_MoveInterfaceNotVeryEffective);
+                break;
+            case COLOR_SUPER_EFFECTIVE:
+                StringCopy(txtPtr, gText_MoveInterfaceSuperEffective);
+                break;
+        }
+    }
+
+	BattlePutTextOnWindow(gDisplayedStringBattle, typeColor);
+
+    if (movePower > 0 && (moveType == battlerType1 || moveType == battlerType2))
+    {
+        StringCopy(gDisplayedStringBattle, gText_MoveInterfaceSTAB);
+        BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_STAB_SYMBOL);
+    }
+}
+
+//todo: account for ivy cudgel (see 1.7.0 expansion update)
 static void MoveSelectionDisplayMoveType(u32 battler)
 {
     u8 *txtPtr;
-    u8 type;
-    u32 speciesId;
-    struct Pokemon *mon;
+    u8 typeColor = IsDoubleBattle() ? B_WIN_MOVE_TYPE : TypeEffectiveness(GetBattlerAtPosition(BATTLE_OPPOSITE(GetBattlerPosition(battler))), battler);
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
+    u8 moveType = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].type;
+    u8 movePower = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].power;
+    u8 battlerType1 = gBattleMons[battler].type1;
+    u8 battlerType2 = gBattleMons[battler].type2;
 
-    txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceType);
-    *(txtPtr)++ = EXT_CTRL_CODE_BEGIN;
-    *(txtPtr)++ = EXT_CTRL_CODE_FONT;
-    *(txtPtr)++ = FONT_NORMAL;
+    txtPtr = StringCopy(gDisplayedStringBattle, gTypesInfo[moveType].name);
 
-    if (moveInfo->moves[gMoveSelectionCursor[battler]] == MOVE_IVY_CUDGEL)
-    {
-        mon = &GetSideParty(GetBattlerSide(battler))[gBattlerPartyIndexes[battler]];
-        speciesId = GetMonData(mon, MON_DATA_SPECIES);
+    if (typeColor != COLOR_EFFECTIVE) {
+        *(txtPtr)++ = EXT_CTRL_CODE_BEGIN;
+        *(txtPtr)++ = EXT_CTRL_CODE_FONT;
+        *(txtPtr)++ = FONT_NORMAL;
 
-        if (speciesId == SPECIES_OGERPON_WELLSPRING_MASK || speciesId == SPECIES_OGERPON_WELLSPRING_MASK_TERA
-            || speciesId == SPECIES_OGERPON_HEARTHFLAME_MASK || speciesId == SPECIES_OGERPON_HEARTHFLAME_MASK_TERA
-            || speciesId == SPECIES_OGERPON_CORNERSTONE_MASK || speciesId == SPECIES_OGERPON_CORNERSTONE_MASK_TERA)
-            type = gBattleMons[battler].type2;
-        else
-            type = gMovesInfo[MOVE_IVY_CUDGEL].type;
+        switch (typeColor) {
+            case COLOR_IMMUNE:
+                StringCopy(txtPtr, gText_MoveInterfaceImmune);
+                break;
+            case COLOR_NOT_VERY_EFFECTIVE:
+                StringCopy(txtPtr, gText_MoveInterfaceNotVeryEffective);
+                break;
+            case COLOR_SUPER_EFFECTIVE:
+                StringCopy(txtPtr, gText_MoveInterfaceSuperEffective);
+                break;
+        }
     }
-    else
-        type = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].type;
 
-    StringCopy(txtPtr, gTypesInfo[type].name);
-    BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_TYPE);
+    BattlePutTextOnWindow(gDisplayedStringBattle, typeColor);
+
+    if (movePower > 0 && (moveType == battlerType1 || moveType == battlerType2))
+    {
+        StringCopy(gDisplayedStringBattle, gText_MoveInterfaceSTAB);
+        BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_STAB_SYMBOL);
+    }
 }
 
 void MoveSelectionCreateCursorAt(u8 cursorPosition, u8 baseTileNum)
