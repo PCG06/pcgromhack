@@ -1769,7 +1769,7 @@ static void MoveSelectionDisplayMoveTypeDoubles(u8 targetId, u32 battler)
     u8 typeColor = TypeEffectiveness(targetId, battler);
 	struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct*)(&gBattleResources->bufferA[battler][4]);
     u32 battlerAtk = battler;
-    u8 move = gBattleMons[battler].moves[gMoveSelectionCursor[battler]];
+    u16 move = gBattleMons[battler].moves[gMoveSelectionCursor[battler]];
     u8 moveType = GetTypeBeforeUsingMove(move, battlerAtk);
     u8 movePower = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].power;
     u8 battlerType1 = gBattleMons[battler].type1;
