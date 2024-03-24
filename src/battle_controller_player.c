@@ -30,6 +30,7 @@
 #include "text.h"
 #include "util.h"
 #include "window.h"
+#include "config/battle.h"
 #include "constants/battle_anim.h"
 #include "constants/battle_partner.h"
 #include "constants/hold_effects.h"
@@ -1742,8 +1743,9 @@ u8 TypeEffectiveness(u8 targetId, u32 battler)
     u32 moveType;
     uq4_12_t modifier;
     move = gBattleMons[battler].moves[gMoveSelectionCursor[battler]];
+    u32 battlerAtk = battler;
     // todo account for hidden power and maybe other dynamic move types?
-    moveType = gMovesInfo[move].type;
+    moveType = GetTypeBeforeUsingMove(move, battlerAtk);
 
     modifier = CalcTypeEffectivenessMultiplier(move, moveType, battler, targetId, GetBattlerAbility(targetId), TRUE);
     
@@ -1766,7 +1768,9 @@ static void MoveSelectionDisplayMoveTypeDoubles(u8 targetId, u32 battler)
 	u8 *txtPtr;
     u8 typeColor = TypeEffectiveness(targetId, battler);
 	struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct*)(&gBattleResources->bufferA[battler][4]);
-    u8 moveType = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].type;
+    u32 battlerAtk = battler;
+    u8 move = gBattleMons[battler].moves[gMoveSelectionCursor[battler]];
+    u8 moveType = GetTypeBeforeUsingMove(move, battlerAtk);
     u8 movePower = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].power;
     u8 battlerType1 = gBattleMons[battler].type1;
     u8 battlerType2 = gBattleMons[battler].type2;
@@ -1814,7 +1818,9 @@ static void MoveSelectionDisplayMoveType(u32 battler)
     u8 *txtPtr;
     u8 typeColor = IsDoubleBattle() ? B_WIN_MOVE_TYPE : TypeEffectiveness(GetBattlerAtPosition(BATTLE_OPPOSITE(GetBattlerPosition(battler))), battler);
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
-    u8 moveType = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].type;
+    u32 battlerAtk = battler;
+    u16 move = moveInfo->moves[gMoveSelectionCursor[battler]];
+    u8 moveType = GetTypeBeforeUsingMove(move, battlerAtk);
     u8 movePower = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].power;
     u8 battlerType1 = gBattleMons[battler].type1;
     u8 battlerType2 = gBattleMons[battler].type2;

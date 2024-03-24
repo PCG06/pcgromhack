@@ -255,4 +255,8 @@
 #define B_NEW_IMPACT_PALETTE            TRUE    // If set to TRUE, it updates the basic 'hit' palette.
 #define B_NEW_SURF_PARTICLE_PALETTE     TRUE    // If set to TRUE, it updates Surf's wave palette.
 
+// Dynamic move type
+
+#define B_DYNAMIC_MOVE_TYPE             TRUE    // If set to TRUE, shows a move's dynamic type in the summary screen and battle move box.
+
 #endif // GUARD_CONFIG_BATTLE_H

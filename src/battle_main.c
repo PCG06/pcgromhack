@@ -5925,6 +5925,232 @@ void RunBattleScriptCommands(void)
         gBattleScriptingCommandsTable[gBattlescriptCurrInstr[0]]();
 }
 
+u8 GetMonMoveType(u16 move, struct Pokemon *mon, u32 battler)
+{
+    u32 moveType, ateType;
+    u16 item = GetMonData(mon, MON_DATA_HELD_ITEM, NULL);
+    u16 holdEffect = ItemId_GetHoldEffect(item);
+    u16 species = GetMonData(mon, MON_DATA_SPECIES, NULL);
+    u8  abilityNum = GetMonData(mon, MON_DATA_ABILITY_NUM, NULL);
+    u16 ability = GetAbilityBySpecies(species, abilityNum);
+    u8 type1 = gSpeciesInfo[battler].types[0];
+    u8 type2 = gSpeciesInfo[battler].types[0];
+    u32 battlerAtk = battler;
+
+    GET_MOVE_TYPE(move, moveType);
+
+    if (move == MOVE_STRUGGLE)
+        return TYPE_NORMAL;
+
+    if (gMovesInfo[move].effect == EFFECT_HIDDEN_POWER)
+    {
+        u8 typeBits  = ((GetMonData(mon, MON_DATA_HP_IV, NULL) & 1) << 0)
+                     | ((GetMonData(mon, MON_DATA_ATK_IV, NULL) & 1) << 1)
+                     | ((GetMonData(mon, MON_DATA_DEF_IV, NULL) & 1) << 2)
+                     | ((GetMonData(mon, MON_DATA_SPEED_IV, NULL) & 1) << 3)
+                     | ((GetMonData(mon, MON_DATA_SPATK_IV, NULL) & 1) << 4)
+                     | ((GetMonData(mon, MON_DATA_SPDEF_IV, NULL) & 1) << 5);
+
+        ateType = (15 * typeBits) / 63 + 1;
+        if (ateType >= TYPE_MYSTERY)
+            ateType++;
+
+        return ateType;
+    }
+    else if (gMovesInfo[move].effect == EFFECT_CHANGE_TYPE_ON_ITEM)
+    {
+        if (holdEffect == gMovesInfo[move].argument)
+            return ItemId_GetSecondaryId(item);
+    }
+    else if (gMovesInfo[move].effect == EFFECT_REVELATION_DANCE)
+    {
+        if (type1 != TYPE_MYSTERY)
+            return type1;
+        else if (type2 != TYPE_MYSTERY)
+            return type2;
+    }
+    else if (gMovesInfo[move].effect == EFFECT_NATURAL_GIFT)
+    {
+        if (ItemId_GetPocket(item) == POCKET_BERRIES)
+            return gNaturalGiftTable[ITEM_TO_BERRY(item)].type;
+    }
+
+   if (gMovesInfo[move].type == TYPE_NORMAL
+             && gMovesInfo[move].effect != EFFECT_HIDDEN_POWER
+             && gMovesInfo[move].effect != EFFECT_WEATHER_BALL
+             && gMovesInfo[move].effect != EFFECT_CHANGE_TYPE_ON_ITEM
+             && gMovesInfo[move].effect != EFFECT_NATURAL_GIFT
+             && ((ability == ABILITY_PIXILATE       && (ateType = TYPE_FAIRY))
+                 || (ability == ABILITY_REFRIGERATE && (ateType = TYPE_ICE))
+                 || (ability == ABILITY_AERILATE    && (ateType = TYPE_FLYING))
+                 || ((ability == ABILITY_GALVANIZE) && (ateType = TYPE_ELECTRIC)))
+                )
+                {
+        return ateType;
+    }
+
+    else if (move == MOVE_AURA_WHEEL && species == SPECIES_MORPEKO_HANGRY)
+        return TYPE_DARK;
+
+    if(ability == ABILITY_NORMALIZE)
+    {
+        if (gMovesInfo[move].type != TYPE_NORMAL
+             && gMovesInfo[move].effect != EFFECT_HIDDEN_POWER
+             && gMovesInfo[move].effect != EFFECT_WEATHER_BALL)
+        return TYPE_NORMAL;
+    }
+
+    if(ability == ABILITY_LIQUID_VOICE)
+    {
+        if (gMovesInfo[move].soundMove == TRUE)
+            return TYPE_WATER;
+    }
+
+    else if (gMovesInfo[move].effect == EFFECT_RAGING_BULL
+            && (gBattleMons[battlerAtk].species == SPECIES_TAUROS_PALDEAN_COMBAT_BREED
+             || gBattleMons[battlerAtk].species == SPECIES_TAUROS_PALDEAN_BLAZE_BREED
+             || gBattleMons[battlerAtk].species == SPECIES_TAUROS_PALDEAN_AQUA_BREED))
+    {
+            return gBattleMons[battlerAtk].type2;
+    }
+    else if (gMovesInfo[move].effect == EFFECT_IVY_CUDGEL
+            && (gBattleMons[battlerAtk].species == SPECIES_OGERPON_WELLSPRING_MASK || gBattleMons[battlerAtk].species == SPECIES_OGERPON_WELLSPRING_MASK_TERA
+             || gBattleMons[battlerAtk].species == SPECIES_OGERPON_HEARTHFLAME_MASK || gBattleMons[battlerAtk].species == SPECIES_OGERPON_HEARTHFLAME_MASK_TERA
+             || gBattleMons[battlerAtk].species == SPECIES_OGERPON_CORNERSTONE_MASK || gBattleMons[battlerAtk].species == SPECIES_OGERPON_CORNERSTONE_MASK_TERA ))
+    {
+        return gBattleMons[battlerAtk].type2;
+    }
+    return gMovesInfo[move].type;
+}
+
+u8 GetTypeBeforeUsingMove(u16 move, u8 battlerAtk)
+{
+    u32 moveType, ateType, attackerAbility;
+    u16 holdEffect = GetBattlerHoldEffect(battlerAtk, TRUE);
+
+    if (move == MOVE_STRUGGLE)
+        return TYPE_NORMAL;
+
+    if (gMovesInfo[move].effect == EFFECT_WEATHER_BALL)
+    {
+        if (WEATHER_HAS_EFFECT)
+        {
+            if (gBattleWeather & B_WEATHER_RAIN && holdEffect != HOLD_EFFECT_UTILITY_UMBRELLA)
+                return TYPE_WATER;
+            else if (gBattleWeather & B_WEATHER_SANDSTORM)
+                return TYPE_ROCK;
+            else if (gBattleWeather & B_WEATHER_SUN && holdEffect != HOLD_EFFECT_UTILITY_UMBRELLA)
+                return TYPE_FIRE;
+            else if (gBattleWeather & B_WEATHER_SNOW)
+                return TYPE_ICE;
+            else
+                return TYPE_NORMAL;
+        }
+    }
+    else if (gMovesInfo[move].effect == EFFECT_HIDDEN_POWER)
+    {
+        u8 typeBits  = ((gBattleMons[battlerAtk].hpIV & 1) << 0)
+                     | ((gBattleMons[battlerAtk].attackIV & 1) << 1)
+                     | ((gBattleMons[battlerAtk].defenseIV & 1) << 2)
+                     | ((gBattleMons[battlerAtk].speedIV & 1) << 3)
+                     | ((gBattleMons[battlerAtk].spAttackIV & 1) << 4)
+                     | ((gBattleMons[battlerAtk].spDefenseIV & 1) << 5);
+
+        ateType = (15 * typeBits) / 63 + 1;
+        if (ateType >= TYPE_MYSTERY)
+            ateType++;
+
+        return ateType;
+    }
+    else if (gMovesInfo[move].effect == EFFECT_CHANGE_TYPE_ON_ITEM)
+    {
+        if (holdEffect == gMovesInfo[move].argument)
+            return ItemId_GetSecondaryId(gBattleMons[battlerAtk].item);
+    }
+    else if (gMovesInfo[move].effect == EFFECT_REVELATION_DANCE)
+    {
+        if (gBattleMons[battlerAtk].type1 != TYPE_MYSTERY)
+            return gBattleMons[battlerAtk].type1;
+        else if (gBattleMons[battlerAtk].type2 != TYPE_MYSTERY)
+            return gBattleMons[battlerAtk].type2;
+        else if (gBattleMons[battlerAtk].type3 != TYPE_MYSTERY)
+            return gBattleMons[battlerAtk].type3;
+    }
+    else if (gMovesInfo[move].effect == EFFECT_NATURAL_GIFT)
+    {
+        if (ItemId_GetPocket(gBattleMons[battlerAtk].item) == POCKET_BERRIES)
+            return gNaturalGiftTable[ITEM_TO_BERRY(gBattleMons[battlerAtk].item)].type;
+    }
+    else if (gMovesInfo[move].effect == EFFECT_TERRAIN_PULSE)
+    {
+        if (IsBattlerTerrainAffected(battlerAtk, STATUS_FIELD_TERRAIN_ANY))
+        {
+            if (gFieldStatuses & STATUS_FIELD_ELECTRIC_TERRAIN)
+                return TYPE_ELECTRIC;
+            else if (gFieldStatuses & STATUS_FIELD_GRASSY_TERRAIN)
+                return TYPE_GRASS;
+            else if (gFieldStatuses & STATUS_FIELD_MISTY_TERRAIN)
+                return TYPE_FAIRY;
+            else if (gFieldStatuses & STATUS_FIELD_PSYCHIC_TERRAIN)
+                return TYPE_PSYCHIC;
+            else //failsafe
+                return TYPE_NORMAL;
+        }
+    }
+
+    attackerAbility = GetBattlerAbility(battlerAtk);
+
+    GET_MOVE_TYPE(move, moveType);
+
+    if ((gFieldStatuses & STATUS_FIELD_ION_DELUGE && moveType == TYPE_NORMAL) || gStatuses4[battlerAtk] & STATUS4_ELECTRIFIED)
+        return TYPE_ELECTRIC;
+
+    else if (gMovesInfo[move].type == TYPE_NORMAL
+             && gMovesInfo[move].effect != EFFECT_HIDDEN_POWER
+             && gMovesInfo[move].effect != EFFECT_WEATHER_BALL
+             && gMovesInfo[move].effect != EFFECT_CHANGE_TYPE_ON_ITEM
+             && gMovesInfo[move].effect != EFFECT_NATURAL_GIFT
+             && (((attackerAbility == ABILITY_PIXILATE)        && (ateType = TYPE_FAIRY))
+                || ((attackerAbility == ABILITY_REFRIGERATE)  && (ateType = TYPE_ICE))
+                || ((attackerAbility == ABILITY_AERILATE)     && (ateType = TYPE_FLYING))
+                || ((attackerAbility == ABILITY_GALVANIZE)    && (ateType = TYPE_ELECTRIC)))
+             )
+        return ateType;
+
+    else if (gMovesInfo[move].type != TYPE_NORMAL
+             && gMovesInfo[move].effect != EFFECT_HIDDEN_POWER
+             && gMovesInfo[move].effect != EFFECT_WEATHER_BALL
+             && attackerAbility == ABILITY_NORMALIZE)
+        return TYPE_NORMAL;
+
+    else if ((gMovesInfo[move].soundMove == TRUE) &&
+             (attackerAbility == ABILITY_LIQUID_VOICE))
+        return TYPE_WATER;
+
+    else if (gStatuses4[battlerAtk] & STATUS4_ELECTRIFIED && moveType == TYPE_NORMAL)
+        return TYPE_ELECTRIC;
+
+    else if (move == MOVE_AURA_WHEEL && gBattleMons[battlerAtk].species == SPECIES_MORPEKO_HANGRY)
+        return TYPE_DARK;
+
+    else if (gMovesInfo[move].effect == EFFECT_RAGING_BULL
+            && (gBattleMons[battlerAtk].species == SPECIES_TAUROS_PALDEAN_COMBAT_BREED
+             || gBattleMons[battlerAtk].species == SPECIES_TAUROS_PALDEAN_BLAZE_BREED
+             || gBattleMons[battlerAtk].species == SPECIES_TAUROS_PALDEAN_AQUA_BREED))
+    {
+            return gBattleMons[battlerAtk].type2;
+    }
+    else if (gMovesInfo[move].effect == EFFECT_IVY_CUDGEL
+            && (gBattleMons[battlerAtk].species == SPECIES_OGERPON_WELLSPRING_MASK || gBattleMons[battlerAtk].species == SPECIES_OGERPON_WELLSPRING_MASK_TERA
+             || gBattleMons[battlerAtk].species == SPECIES_OGERPON_HEARTHFLAME_MASK || gBattleMons[battlerAtk].species == SPECIES_OGERPON_HEARTHFLAME_MASK_TERA
+             || gBattleMons[battlerAtk].species == SPECIES_OGERPON_CORNERSTONE_MASK || gBattleMons[battlerAtk].species == SPECIES_OGERPON_CORNERSTONE_MASK_TERA ))
+    {
+        return gBattleMons[battlerAtk].type2;
+    }
+
+    return gMovesInfo[move].type;
+}
+
 void SetTypeBeforeUsingMove(u32 move, u32 battlerAtk)
 {
     u32 moveType, ateType, attackerAbility;

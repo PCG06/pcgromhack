@@ -41,6 +41,7 @@
 #include "text.h"
 #include "tv.h"
 #include "window.h"
+#include "config/battle.h"
 #include "constants/battle_move_effects.h"
 #include "constants/hold_effects.h"
 #include "constants/items.h"
@@ -3938,13 +3939,21 @@ static void SetMonTypeIcons(void)
 
 static void SetMoveTypeIcons(void)
 {
-    u8 i;
+    u8 i = 0;
     struct PokeSummary *summary = &sMonSummaryScreen->summary;
+    struct Pokemon *mon = &sMonSummaryScreen->currentMon;
+
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
         if (summary->moves[i] != MOVE_NONE)
         {
-            SetTypeSpritePosAndPal(gMovesInfo[summary->moves[i]].type, 85, 32 + (i * 16), i + SPRITE_ARR_ID_TYPE);
+            if (B_DYNAMIC_MOVE_TYPE == TRUE)
+            {
+                u8 movetype = GetMonMoveType(summary->moves[i], mon, 0);
+                SetTypeSpritePosAndPal(movetype, 85, 32 + (i * 16), i + SPRITE_ARR_ID_TYPE);
+            }
+            else
+                SetTypeSpritePosAndPal(gMovesInfo[summary->moves[i]].type, 85, 32 + (i * 16), i + SPRITE_ARR_ID_TYPE);
         }
         else
             SetSpriteInvisibility(i + SPRITE_ARR_ID_TYPE, TRUE);
