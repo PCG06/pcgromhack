@@ -11,6 +11,7 @@
 #include "battle_z_move.h"
 #include "bg.h"
 #include "data.h"
+#include "event_data.h"
 #include "item.h"
 #include "item_menu.h"
 #include "link.h"
@@ -85,6 +86,8 @@ static void MoveSelectionDisplayPpString(u32 battler);
 static void MoveSelectionDisplayMoveType(u32 battler);
 static void MoveSelectionDisplayMoveTypeDoubles(u8 targetId, u32 battler);
 static void MoveSelectionDisplayMoveNames(u32 battler);
+static void MoveSelectionDisplayInfo(u32 battler);
+static void MoveSelectionDisplaySplitIcon(u32 battler);
 static void HandleMoveSwitching(u32 battler);
 static void SwitchIn_HandleSoundAndEnd(u32 battler);
 static void WaitForMonSelection(u32 battler);
@@ -690,6 +693,10 @@ static void HandleInputChooseMove(u32 battler)
 
     if (JOY_NEW(A_BUTTON))
     {
+        if (B_BATTLE_MOVE_INFO == TRUE)
+        {
+            FlagClear(FLAG_SYS_MOVE_INFO);
+        }
         PlaySE(SE_SELECT);
         if (moveInfo->moves[gMoveSelectionCursor[battler]] == MOVE_CURSE)
         {
@@ -819,9 +826,33 @@ static void HandleInputChooseMove(u32 battler)
             BtlController_EmitTwoReturnValues(battler, BUFFER_B, 10, 0xFFFF);
             HideTriggerSprites();
             PlayerBufferExecCompleted(battler);
+            if (B_BATTLE_MOVE_INFO == TRUE)
+            {
+                FlagClear(FLAG_SYS_MOVE_INFO);
+            }
         }
     }
-    else if (JOY_NEW(DPAD_LEFT) && !gBattleStruct->zmove.viewing)
+    else if (JOY_NEW(B_BATTLE_MOVE_INFO_BUTTON) || gPlayerDpadHoldFrames > 59)
+    {
+        if (B_BATTLE_MOVE_INFO == TRUE)
+        {
+            if(!FlagGet(FLAG_SYS_MOVE_INFO))
+            {
+                MoveSelectionDestroyCursorAt(gMoveSelectionCursor[battler]);
+                MoveSelectionCreateCursorAt(0, 0);
+                MoveSelectionDisplayInfo(battler);
+                FlagSet(FLAG_SYS_MOVE_INFO);
+            }
+            else
+            {
+                MoveSelectionDestroyCursorAt(0);
+                MoveSelectionDisplayMoveNames(battler);
+                MoveSelectionCreateCursorAt(gMoveSelectionCursor[battler], 0);
+                FlagClear(FLAG_SYS_MOVE_INFO);
+            }
+        }
+    }
+    else if (JOY_NEW(DPAD_LEFT) && !gBattleStruct->zmove.viewing && !FlagGet(FLAG_SYS_MOVE_INFO))
     {
         if (gMoveSelectionCursor[battler] & 1)
         {
@@ -834,7 +865,7 @@ static void HandleInputChooseMove(u32 battler)
             TryChangeZIndicator(battler, gMoveSelectionCursor[battler]);
         }
     }
-    else if (JOY_NEW(DPAD_RIGHT) && !gBattleStruct->zmove.viewing)
+    else if (JOY_NEW(DPAD_RIGHT) && !gBattleStruct->zmove.viewing && !FlagGet(FLAG_SYS_MOVE_INFO))
     {
         if (!(gMoveSelectionCursor[battler] & 1)
          && (gMoveSelectionCursor[battler] ^ 1) < gNumberOfMovesToChoose)
@@ -848,7 +879,7 @@ static void HandleInputChooseMove(u32 battler)
             TryChangeZIndicator(battler, gMoveSelectionCursor[battler]);
         }
     }
-    else if (JOY_NEW(DPAD_UP) && !gBattleStruct->zmove.viewing)
+    else if (JOY_NEW(DPAD_UP) && !gBattleStruct->zmove.viewing && !FlagGet(FLAG_SYS_MOVE_INFO))
     {
         if (gMoveSelectionCursor[battler] & 2)
         {
@@ -861,7 +892,7 @@ static void HandleInputChooseMove(u32 battler)
             TryChangeZIndicator(battler, gMoveSelectionCursor[battler]);
         }
     }
-    else if (JOY_NEW(DPAD_DOWN) && !gBattleStruct->zmove.viewing)
+    else if (JOY_NEW(DPAD_DOWN) && !gBattleStruct->zmove.viewing && !FlagGet(FLAG_SYS_MOVE_INFO))
     {
         if (!(gMoveSelectionCursor[battler] & 2)
          && (gMoveSelectionCursor[battler] ^ 2) < gNumberOfMovesToChoose)
@@ -1745,7 +1776,10 @@ u8 TypeEffectiveness(u8 targetId, u32 battler)
     move = gBattleMons[battler].moves[gMoveSelectionCursor[battler]];
     u32 battlerAtk = battler;
     // todo account for hidden power and maybe other dynamic move types?
-    moveType = GetTypeBeforeUsingMove(move, battlerAtk);
+    if (B_DYNAMIC_MOVE_TYPE == TRUE)
+        moveType = GetTypeBeforeUsingMove(move, battlerAtk);
+    else
+        moveType = gMovesInfo[move].type;
 
     modifier = CalcTypeEffectivenessMultiplier(move, moveType, battler, targetId, GetBattlerAbility(targetId), TRUE);
     
@@ -1765,12 +1799,15 @@ u8 TypeEffectiveness(u8 targetId, u32 battler)
 //todo: account for ivy cudgel (see 1.7.0 expansion update)
 static void MoveSelectionDisplayMoveTypeDoubles(u8 targetId, u32 battler)
 {
-	u8 *txtPtr;
+	u8 *txtPtr, moveType;
     u8 typeColor = TypeEffectiveness(targetId, battler);
 	struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct*)(&gBattleResources->bufferA[battler][4]);
     u32 battlerAtk = battler;
     u16 move = gBattleMons[battler].moves[gMoveSelectionCursor[battler]];
-    u8 moveType = GetTypeBeforeUsingMove(move, battlerAtk);
+    if (B_DYNAMIC_MOVE_TYPE == TRUE)
+        moveType = GetTypeBeforeUsingMove(move, battlerAtk);
+    else
+        moveType = gMovesInfo[move].type;
     u8 movePower = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].power;
     u8 battlerType1 = gBattleMons[battler].type1;
     u8 battlerType2 = gBattleMons[battler].type2;
@@ -1815,12 +1852,15 @@ static void MoveSelectionDisplayMoveTypeDoubles(u8 targetId, u32 battler)
 //todo: account for ivy cudgel (see 1.7.0 expansion update)
 static void MoveSelectionDisplayMoveType(u32 battler)
 {
-    u8 *txtPtr;
+    u8 *txtPtr, moveType;
     u8 typeColor = IsDoubleBattle() ? B_WIN_MOVE_TYPE : TypeEffectiveness(GetBattlerAtPosition(BATTLE_OPPOSITE(GetBattlerPosition(battler))), battler);
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
     u32 battlerAtk = battler;
     u16 move = moveInfo->moves[gMoveSelectionCursor[battler]];
-    u8 moveType = GetTypeBeforeUsingMove(move, battlerAtk);
+    if (B_DYNAMIC_MOVE_TYPE == TRUE)
+        moveType = GetTypeBeforeUsingMove(move, battlerAtk);
+    else
+        moveType = gMovesInfo[move].type;
     u8 movePower = gMovesInfo[moveInfo->moves[gMoveSelectionCursor[battler]]].power;
     u8 battlerType1 = gBattleMons[battler].type1;
     u8 battlerType2 = gBattleMons[battler].type2;
@@ -1851,6 +1891,10 @@ static void MoveSelectionDisplayMoveType(u32 battler)
     {
         StringCopy(gDisplayedStringBattle, gText_MoveInterfaceSTAB);
         BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_STAB_SYMBOL);
+    }        
+    if (B_PSS_SPLIT_ICONS == TRUE)
+    {
+        MoveSelectionDisplaySplitIcon(battler);
     }
 }
 
@@ -2413,4 +2457,102 @@ static void PlayerHandleBattleDebug(u32 battler)
     BeginNormalPaletteFade(-1, 0, 0, 0x10, 0);
     SetMainCallback2(CB2_BattleDebugMenu);
     gBattlerControllerFuncs[battler] = Controller_WaitForDebug;
+}
+
+static void MoveSelectionDisplaySplitIcon(u32 battler)
+{
+	static const u16 sSplitIcons_Pal[] = INCBIN_U16("graphics/interface/split_icons_battle.gbapal");
+	static const u8 sSplitIcons_Gfx[] = INCBIN_U8("graphics/interface/split_icons_battle.4bpp");
+	struct ChooseMoveStruct *moveInfo;
+	int icon;
+
+	moveInfo = (struct ChooseMoveStruct*)(&gBattleResources->bufferA[battler][4]);
+	icon = GetBattleMoveCategory(moveInfo->moves[gMoveSelectionCursor[battler]]);
+	LoadPalette(sSplitIcons_Pal, 10 * 0x10, 0x20);
+	BlitBitmapToWindow(B_WIN_DUMMY, sSplitIcons_Gfx + 0x80 * icon, 0, 0, 16, 16);
+	PutWindowTilemap(B_WIN_DUMMY);
+	CopyWindowToVram(B_WIN_DUMMY, 3);
+}
+
+static void MoveSelectionDisplayInfo(u32 battler)
+{
+    static const u8 gPowerText[] =  _("Power: {STR_VAR_1}");
+    static const u8 gPowerZeroText[] =  _("   0");
+    static const u8 gAccuracyText[] =  _("Acc: {STR_VAR_1}");
+    static const u8 gNoMissText[] = _("  No Miss");
+    static const u8 gContactText[] =  _("Contact");
+    static const u8 gNoContactText[] =  _("No Contact");
+
+    struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct*)(&gBattleResources->bufferA[battler][4]);
+    u32 move = moveInfo->moves[gMoveSelectionCursor[battler]];
+    u32 battlerAtk = battler;
+    u32 battlerDef = BATTLE_OPPOSITE(battlerAtk);
+    u32 moveType = gMovesInfo[move].type;
+    u32 moveContact = IsMoveMakingContact(move, battlerAtk);
+    u32 atkAbility = GetBattlerAbility(battlerAtk);
+    u32 defAbility = GetBattlerAbility(battlerDef);
+    u32 holdEffectAtk = GetBattlerHoldEffect(battlerAtk, TRUE);
+    u32 holdEffectDef = GetBattlerHoldEffect(battlerDef, TRUE);
+    u32 weather = gBattleWeather;
+    bool32 updateFlags = FALSE;
+    u32 power = 0;
+    u32 accuracy = 0;
+    if (B_UPDATED_BATTLE_MOVE_INFO == TRUE) // in include/config/battle.h
+    {
+        power = CalcMoveBasePowerAfterModifiers(move, battlerAtk, battlerDef, moveType, updateFlags, atkAbility, defAbility, holdEffectAtk, weather);  // shows real base power after modifiers
+        accuracy = GetTotalAccuracy(battlerAtk, battlerDef, move, atkAbility, defAbility, holdEffectAtk, holdEffectDef);                               // shows real accuracy after modifiers
+    }
+    else
+    {
+        power = gMovesInfo[move].power; // for base power without modifiers
+        accuracy = gMovesInfo[move].accuracy; // for base accuracy without modifiers
+    }                              // shows real accuracy after modifiers
+
+    //Move Name
+    StringCopy(gDisplayedStringBattle, gMovesInfo[move].name);
+
+    BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_NAME_1);
+    PutWindowTilemap(B_WIN_MOVE_NAME_1 );
+    CopyWindowToVram(B_WIN_MOVE_NAME_1 , 3);
+
+    // Move Power
+    if (gMovesInfo[move].power == 0) // for status moves
+    {
+        StringExpandPlaceholders(gStringVar1, gPowerZeroText);
+    }
+    else
+    {
+        ConvertIntToDecimalStringN(gStringVar1, power, STR_CONV_MODE_RIGHT_ALIGN, 4);
+    }
+	StringExpandPlaceholders(gStringVar4, gPowerText);
+    BattlePutTextOnWindow(gStringVar4, B_WIN_MOVE_NAME_3);
+    PutWindowTilemap(B_WIN_MOVE_NAME_3 );
+	CopyWindowToVram(B_WIN_MOVE_NAME_3 , 3);
+
+    // Move Accuracy
+    if (gMovesInfo[move].accuracy == 0) // for never-miss moves
+    {
+        StringExpandPlaceholders(gStringVar1, gNoMissText);
+    }
+    else
+    {
+        ConvertIntToDecimalStringN(gStringVar1, accuracy, STR_CONV_MODE_RIGHT_ALIGN, 4);
+    }
+	StringExpandPlaceholders(gStringVar4, gAccuracyText);
+    BattlePutTextOnWindow(gStringVar4, B_WIN_MOVE_NAME_4);
+    PutWindowTilemap(B_WIN_MOVE_NAME_4 );
+	CopyWindowToVram(B_WIN_MOVE_NAME_4 , 3);
+
+    // Contact Move
+    if (moveContact == TRUE)
+    {
+	    StringExpandPlaceholders(gStringVar4, gContactText);
+    }
+    else
+    {
+        StringExpandPlaceholders(gStringVar4, gNoContactText);
+    }
+    BattlePutTextOnWindow(gStringVar4, B_WIN_MOVE_NAME_2);
+    PutWindowTilemap(B_WIN_MOVE_NAME_2 );
+	CopyWindowToVram(B_WIN_MOVE_NAME_2 , 3);
 }
