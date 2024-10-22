@@ -40,3 +40,4 @@ prefabs.json
 *.js
 ./pyro-list.txt
 src/data/map_group_count.h
+tools/trainerproc/trainerproc
