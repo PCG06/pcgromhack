@@ -58,10 +58,10 @@
     F(FLY) \
     F(SURF) \
     F(STRENGTH) \
-    F(ROCK_CLIMB) \
     F(ROCK_SMASH) \
     F(WATERFALL) \
-    F(DIVE)
+    F(DIVE) \
+    F(ROCK_CLIMB)
 
 #define FOREACH_TMHM(F) \
     FOREACH_TM(F) \

@@ -534,7 +534,7 @@ static void GetTMNumberAndMoveString(u8 * dest, u16 itemId)
     }
     StringAppend(gStringVar4, sText_SingleSpace);
     StringAppend(gStringVar4, gText_FontShort);
-    StringAppend(gStringVar4, gMoveNames[ItemIdToBattleMoveId(itemId)]);
+    StringAppend(gStringVar4, gMovesInfo[ItemIdToBattleMoveId(itemId)].name);
     StringCopy(dest, gStringVar4);
 }
 
@@ -1028,24 +1028,24 @@ static void TMCase_MoveCursor_UpdatePrintedTMInfo(u16 itemId)
     else
     {
         move = ItemIdToBattleMoveId(itemId);
-        BlitMenuInfoIcon(5, gBattleMoves[move].type + 1, 0, 0);
-        if (gBattleMoves[move].power < 2)
+        BlitMenuInfoIcon(5, gMovesInfo[move].type + 1, 0, 0);
+        if (gMovesInfo[move].power < 2)
             str = gText_ThreeDashes;
         else
         {
-            ConvertIntToDecimalStringN(gStringVar1, gBattleMoves[move].power, STR_CONV_MODE_RIGHT_ALIGN, 3);
+            ConvertIntToDecimalStringN(gStringVar1, gMovesInfo[move].power, STR_CONV_MODE_RIGHT_ALIGN, 3);
             str = gStringVar1;
         }
         AddTextPrinterParameterized_ColorByIndex(5, 3, str, 7, 12, 0, 0, 0xFF, 3);
-        if (gBattleMoves[move].accuracy == 0)
+        if (gMovesInfo[move].accuracy == 0)
             str = gText_ThreeDashes;
         else
         {
-            ConvertIntToDecimalStringN(gStringVar1, gBattleMoves[move].accuracy, STR_CONV_MODE_RIGHT_ALIGN, 3);
+            ConvertIntToDecimalStringN(gStringVar1, gMovesInfo[move].accuracy, STR_CONV_MODE_RIGHT_ALIGN, 3);
             str = gStringVar1;
         }
         AddTextPrinterParameterized_ColorByIndex(5, 3, str, 7, 24, 0, 0, 0xFF, 3);
-        ConvertIntToDecimalStringN(gStringVar1, gBattleMoves[move].pp, STR_CONV_MODE_RIGHT_ALIGN, 3);
+        ConvertIntToDecimalStringN(gStringVar1, gMovesInfo[move].pp, STR_CONV_MODE_RIGHT_ALIGN, 3);
         AddTextPrinterParameterized_ColorByIndex(5, 3, gStringVar1, 7, 36, 0, 0, 0xFF, 3);
         CopyWindowToVram(5, 2);
     }
